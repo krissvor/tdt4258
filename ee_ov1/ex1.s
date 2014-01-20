@@ -86,14 +86,14 @@ _reset:
 	ldr R0, =CMU_BASE
 	ldr R1, [R0, #CMU_HFPERCLKEN0]
 	mov R2, #1
-	lsl R2, R2, =CMU_HFPERCLKEN0_GPIO
+	lsl R2, R2, #CMU_HFPERCLKEN0_GPIO
 	orr R2, R1, R2
 	str R2, [R0, #CMU_HFPERCLKEN0]
 
 	//setup NVIC for GPIO odd & even
 	ldr R0, =ISER0
 	ldr R1, [R0]
-	mov R2, #0x802
+	movw R2, #0x802
 	orr R2, R2, R1
 	str R2, [R0]
 
@@ -101,12 +101,13 @@ _reset:
 	//set high drive strength
 	mov R0, #0x2
 	ldr R1, =GPIO_PA_BASE
-	str R0 [R1, #GPIO_CTRL]
+	str R0, [R1, #GPIO_CTRL]
 	//set pin 8-15 as output
 	OUT_PINS = 0x55555555
 	ldr R2, =OUT_PINS
 	str R2, [R1, #GPIO_MODEH]
 
+	//led turnon test
 	LED_ON = 0b1111111100000000
 	ldr R3, =LED_ON
 	str R3, [R1, #GPIO_DOUTSET]
