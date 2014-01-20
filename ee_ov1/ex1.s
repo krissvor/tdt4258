@@ -1,5 +1,5 @@
         .syntax unified
-	
+
 	      .include "efm32gg.s"
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -8,9 +8,9 @@
   // This table contains addresses for all exception handlers
 	//
 	/////////////////////////////////////////////////////////////////////////////
-	
+
         .section .vectors
-	
+
 	      .long   stack_top               /* Top of Stack                 */
 	      .long   _reset                  /* Reset Handler                */
 	      .long   dummy_handler           /* NMI Handler                  */
@@ -81,24 +81,54 @@
 	      .globl  _reset
 	      .type   _reset, %function
         .thumb_func
-_reset: 
-	      b .  // do nothing
-	
+_reset:
+	//setup GPIO clock in CMU
+	ldr R0, =CMU_BASE
+	ldr R1, [R0, #CMU_HFPERCLKEN0]
+	mov R2, #1
+	lsl R2, R2, =CMU_HFPERCLKEN0_GPIO
+	orr R2, R1, R2
+	str R2, [R0, #CMU_HFPERCLKEN0]
+
+	//setup NVIC for GPIO odd & even
+	ldr R0, =ISER0
+	ldr R1, [R0]
+	mov R2, #0x802
+	orr R2, R2, R1
+	str R2, [R0]
+
+	//Setup GPIO
+	//set high drive strength
+	mov R0, #0x2
+	ldr R1, =GPIO_PA_BASE
+	str R0 [R1, #GPIO_CTRL]
+	//set pin 8-15 as output
+	OUT_PINS = 0x55555555
+	ldr R2, =OUT_PINS
+	str R2, [R1, #GPIO_MODEH]
+
+	LED_ON = 0b1111111100000000
+	ldr R3, =LED_ON
+	str R3, [R1, #GPIO_DOUTSET]
+
+
+
+
 	/////////////////////////////////////////////////////////////////////////////
 	//
   // GPIO handler
   // The CPU will jump here when there is a GPIO interrupt
 	//
 	/////////////////////////////////////////////////////////////////////////////
-	
+
         .thumb_func
-gpio_handler:  
+gpio_handler:
 
 	      b .  // do nothing
-	
+
 	/////////////////////////////////////////////////////////////////////////////
-	
+
         .thumb_func
-dummy_handler:  
+dummy_handler:
         b .  // do nothing
 
