@@ -84,7 +84,7 @@
 _reset:
 	//setup GPIO clock in CMU
 	ldr R0, =CMU_BASE
-	ldr R1, [port_a, #CMU_HFPERCLKEN0]
+	ldr R1, [R0, #CMU_HFPERCLKEN0]
 	mov R2, #1
 	lsl R2, R2, #CMU_HFPERCLKEN0_GPIO
 	orr R2, R1, R2
