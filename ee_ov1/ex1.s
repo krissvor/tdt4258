@@ -103,14 +103,16 @@ _reset:
 	mov R0, #0x2
 	ldr R1, =GPIO_PA_BASE
 	str R0, [R1, #GPIO_CTRL]
+
 	//set port A pin 8-15 as output
-	movw R2, #0x5555
-	movt R2, #0x5555
+	ldr R2, =0x55555555
 	str R2, [R1, #GPIO_MODEH]
 
 	//led turnon test
-	mov R3, 0xff00
+	mov R3, 0x0000
 	str R3, [R1, #GPIO_DOUT]
+loop:
+	b loop
 
 
 
