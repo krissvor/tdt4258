@@ -90,6 +90,7 @@ _reset:
 	orr R2, R1, R2
 	str R2, [R0, #CMU_HFPERCLKEN0]
 
+	//setup Interrupts
 	//setup NVIC for GPIO odd & even
 	ldr R0, =ISER0
 	ldr R1, [R0]
@@ -97,6 +98,13 @@ _reset:
 	orr R2, R2, R1
 	str R2, [R0]
 
+	ldr R0, =GPIO_BASE
+	ldr R1, =0x22222222
+	str R1, [R0, #GPIO_EXTIPSELL]
+	mov R1, #0xFF
+	str R1, [R0, #GPIO_EXTIFALL]
+	str R1, [R0, #GPIO_EXTIRISE]
+	str R1, [R0, #GPIO_IEN]
 
 	//Setup GPIO
 	//Never ever ever change these
@@ -121,9 +129,8 @@ _reset:
 	mov R2, 0xff
 	str R2, [port_c, #GPIO_DOUT]
 
+	mov R2, 0xaa00
 loop:
-	ldr R2, [port_c, #GPIO_DIN]
-	lsl R2, R2, #8
 	str R2, [port_a, #GPIO_DOUT]
 	b loop
 
@@ -137,10 +144,10 @@ loop:
 	//
 	/////////////////////////////////////////////////////////////////////////////
 
-        .thumb_func
+.thumb_func
 gpio_handler:
-
-	      b .  // do nothing
+	mov R2, 0x1100	
+	b .  // do nothing
 
 	/////////////////////////////////////////////////////////////////////////////
 
