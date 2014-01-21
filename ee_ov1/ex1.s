@@ -97,6 +97,7 @@ _reset:
 	orr R2, R2, R1
 	str R2, [R0]
 
+
 	//Setup GPIO
 	//Never ever ever change these
 	ldr R0, =GPIO_PA_BASE
@@ -119,11 +120,6 @@ _reset:
 	//enable pull-up resistors
 	mov R2, 0xff
 	str R2, [port_c, #GPIO_DOUT]
-
-	//led turnon test
-	mov R3, 0x0000
-	str R3, [port_a, #GPIO_DOUT]
-
 
 loop:
 	ldr R2, [port_c, #GPIO_DIN]
