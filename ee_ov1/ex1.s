@@ -82,10 +82,9 @@
 	      .type   _reset, %function
         .thumb_func
 _reset:
-
 	//setup GPIO clock in CMU
 	ldr R0, =CMU_BASE
-	ldr R1, [R0, #CMU_HFPERCLKEN0]
+	ldr R1, [port_a, #CMU_HFPERCLKEN0]
 	mov R2, #1
 	lsl R2, R2, #CMU_HFPERCLKEN0_GPIO
 	orr R2, R1, R2
@@ -99,19 +98,37 @@ _reset:
 	str R2, [R0]
 
 	//Setup GPIO
+	//Never ever ever change these
+	ldr R0, =GPIO_PA_BASE
+	ldr R1, =GPIO_PC_BASE
+	port_a .req R0
+	port_c .req R1
+
 	//set high drive strength for LEDs
 	mov R0, #0x2
-	ldr R1, =GPIO_PA_BASE
-	str R0, [R1, #GPIO_CTRL]
+	str R0, [port_a, #GPIO_CTRL]
 
 	//set port A pin 8-15 as output
 	ldr R2, =0x55555555
-	str R2, [R1, #GPIO_MODEH]
+	str R2, [port_a, #GPIO_MODEH]
+
+	//set port C pin 0-7 as input
+	ldr R2, =0x33333333
+	str R2, [port_c, #GPIO_MODEL]
+
+	//enable pull-up resistors
+	mov R2, 0xff
+	str R2, [port_c, #GPIO_DOUT]
 
 	//led turnon test
 	mov R3, 0x0000
-	str R3, [R1, #GPIO_DOUT]
+	str R3, [port_a, #GPIO_DOUT]
+
+
 loop:
+	ldr R2, [port_c, #GPIO_DIN]
+	lsl R2, R2, #8
+	str R2, [port_a, #GPIO_DOUT]
 	b loop
 
 
