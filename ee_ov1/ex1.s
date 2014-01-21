@@ -90,21 +90,12 @@ _reset:
 	orr R2, R1, R2
 	str R2, [R0, #CMU_HFPERCLKEN0]
 
-	//setup Interrupts
 	//setup NVIC for GPIO odd & even
 	ldr R0, =ISER0
 	ldr R1, [R0]
 	movw R2, #0x802
 	orr R2, R2, R1
 	str R2, [R0]
-
-	ldr R0, =GPIO_BASE
-	ldr R1, =0x22222222
-	str R1, [R0, #GPIO_EXTIPSELL]
-	mov R1, #0xFF
-	str R1, [R0, #GPIO_EXTIFALL]
-	str R1, [R0, #GPIO_EXTIRISE]
-	str R1, [R0, #GPIO_IEN]
 
 	//Setup GPIO
 	//Never ever ever change these
@@ -114,8 +105,8 @@ _reset:
 	port_c .req R1
 
 	//set high drive strength for LEDs
-	mov R0, #0x2
-	str R0, [port_a, #GPIO_CTRL]
+	mov R2, #0x2
+	str R2, [port_a, #GPIO_CTRL]
 
 	//set port A pin 8-15 as output
 	ldr R2, =0x55555555
@@ -129,9 +120,16 @@ _reset:
 	mov R2, 0xff
 	str R2, [port_c, #GPIO_DOUT]
 
-	mov R2, 0xaa00
+	//setup interrupts
+	ldr R4, =GPIO_BASE
+	ldr R5, =0x22222222
+	str R5, [R4, #GPIO_EXTIPSELL]
+	mov R5, #0xFF
+	str R5, [R4, #GPIO_EXTIFALL]
+	str R5, [R4, #GPIO_EXTIRISE]
+	str R5, [R4, #GPIO_IEN]
+
 loop:
-	str R2, [port_a, #GPIO_DOUT]
 	b loop
 
 
@@ -146,8 +144,13 @@ loop:
 
 .thumb_func
 gpio_handler:
-	mov R2, 0x1100	
-	b .  // do nothing
+	ldr R2, [port_c, #GPIO_DIN]
+	lsl R2, R2, #8
+	str R2, [port_a, #GPIO_DOUT]
+	ldr R3, =GPIO_BASE
+	mov R4, 0xff
+	str R4, [R3, #GPIO_IFC]
+	bx LR // do nothing
 
 	/////////////////////////////////////////////////////////////////////////////
 
