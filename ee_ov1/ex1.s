@@ -129,11 +129,18 @@ _reset:
 	str R5, [R4, #GPIO_EXTIRISE]
 	str R5, [R4, #GPIO_IEN]
 
-loop:
-	b loop
+	//Turn on a LED
+	ldr R2, =0xFEFEFEFE
+	str R2, [port_a, #GPIO_DOUT]
 
+	//Set up sleep mode
+	ldr R3, =SCR
+	mov R4, #6
+	str R4, [R3]
+	wfi
 
-
+	mov R2, 0xaa00
+	str R2, [port_a, #GPIO_DOUT]
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -144,13 +151,24 @@ loop:
 
 .thumb_func
 gpio_handler:
-	ldr R2, [port_c, #GPIO_DIN]
-	lsl R2, R2, #8
+	ldr R5, [port_c, #GPIO_DIN]
+	
+	ands R5, R5, #0b00000001
+	beq not_button_1
+	ror R2, R2, #7
+
+not_button_1:
+	ands R5, R5, #0b00000100
+	beq not_button_2
+	ror R2, R2, #1
+
+not_button_2:
 	str R2, [port_a, #GPIO_DOUT]
+		
 	ldr R3, =GPIO_BASE
 	mov R4, 0xff
 	str R4, [R3, #GPIO_IFC]
-	bx LR // do nothing
+	bx LR // return
 
 	/////////////////////////////////////////////////////////////////////////////
 
