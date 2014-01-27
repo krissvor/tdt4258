@@ -148,6 +148,10 @@ _reset:
 
 .thumb_func
 gpio_handler:
+	ldr R3, =GPIO_BASE
+	mov R4, 0xff
+	str R4, [R3, #GPIO_IFC]
+
 	ldr R5, [port_c, #GPIO_DIN]
 
 	ldr R7, =0xFFFFFFFE // bit 0
@@ -167,9 +171,6 @@ not_button_1:
 not_button_2:
 	str R2, [port_a, #GPIO_DOUT]
 		
-	ldr R3, =GPIO_BASE
-	mov R4, 0xff
-	str R4, [R3, #GPIO_IFC]
 	bx LR // return
 
 	/////////////////////////////////////////////////////////////////////////////
