@@ -2,12 +2,12 @@
 
 	      .include "efm32gg.s"
 
-	/////////////////////////////////////////////////////////////////////////////
-	//
-  // Exception vector table
-  // This table contains addresses for all exception handlers
-	//
-	/////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Exception vector table
+    // This table contains addresses for all exception handlers
+    //
+    /////////////////////////////////////////////////////////////////////////////
 
         .section .vectors
 
@@ -71,12 +71,12 @@
 
 	      .section .text
 
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// Reset handler
-  // The CPU will start executing here after a reset
-	//
-	/////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Reset handler
+    // The CPU will start executing here after a reset
+    //
+    /////////////////////////////////////////////////////////////////////////////
 
 	      .globl  _reset
 	      .type   _reset, %function
@@ -126,7 +126,7 @@ _reset:
 	str R5, [R4, #GPIO_EXTIPSELL]
 	mov R5, #0xFF
 	str R5, [R4, #GPIO_EXTIFALL]
-	str R5, [R4, #GPIO_EXTIRISE]
+//	str R5, [R4, #GPIO_EXTIRISE]
 	str R5, [R4, #GPIO_IEN]
 
 	//Turn on a LED
@@ -149,15 +149,20 @@ _reset:
 .thumb_func
 gpio_handler:
 	ldr R5, [port_c, #GPIO_DIN]
-	
-	ands R5, R5, #0b00000001
-	beq not_button_1
-	ror R2, R2, #7
+
+	ldr R7, =0xFFFFFFFE // bit 0
+	orr R6, R5, R7
+	mvn R6, R6
+	cbz R6, not_button_1
+	ror R2, R2, #1
+	b not_button_2
 
 not_button_1:
-	ands R5, R5, #0b00000100
-	beq not_button_2
-	ror R2, R2, #1
+	ldr R7, =0xFFFFFFFB // bit 2
+	orr R6, R5, R7
+	mvn R6, R6
+	cbz R6, not_button_2
+	ror R2, R2, #7
 
 not_button_2:
 	str R2, [port_a, #GPIO_DOUT]
