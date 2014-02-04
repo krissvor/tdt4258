@@ -1,4 +1,5 @@
 \documentclass[a4paper, 12pt]{article}
+\usepackage{graphicx}
 \title{TDT4258 --- Exercise 1}
 \author{Per Bachmann, Imre Kerr, Kristian Volden}
 \begin{document}
@@ -29,12 +30,15 @@ In this exercise, we develop a simple program for an EFM32 Giant Gecko microcont
         \end{enumerate}
 
         Before entering sleep mode, the value \texttt{0xFEFEFEFE} is written to a register and then to port A output. This corresponds to one LED being turned on. From then on, the GPIO interrupt handler will detect if button 1 or 3 has been pressed. If so, it rotates this value one position in the appropriate direction and writes it to output. Since we want to rotate with a period of 8, but the registers are 32 bits, we duplicate the output value four times.
+
+        In the interrupt handler, we must clear the GPIO interrupt flag register by writing \texttt{0xFF} to \texttt{GPIO\_IFC}. We found that this has to happen at the start of the handler, otherwise a second interrupt could be triggered while the handler is running.
     % subsection description_of_program (end)
+
     \subsection{Methodology} % (fold)
     \label{sub:methodology}
         Our methodology was as follows:
         \begin{enumerate}
-            \item Get the hardware and uploading working (exercise 0)
+            \item Get the hardware and uploading working (Exercise 0).
             \item Write a program that turns on some LEDs.
             \item Modify it to use buttons as well. This version used a busy loop to constantly write the button state to the LEDs.
             \item Modify it to do the same thing, only with interrupts.
@@ -46,7 +50,21 @@ In this exercise, we develop a simple program for an EFM32 Giant Gecko microcont
 
 \section{Results and Tests} % (fold)
 \label{sec:results_and_tests}
+	\subsection{Functional Tests} % (fold)
+	\label{sub:functional_tests}
+		\begin{enumerate}
+			\item Pressing the left or right buttons should make the light move left or right, respectively. \\
+				  Result: It does.
+			\item The buttons should not glitch, i.e. a press should not be registered twice.
+				  Result: This did happen occasionally.
+		\end{enumerate}
+		For the last one, our theory is that the built-in glitch filter in the EFM32GG has a period that is too short (20-50ns according to the data sheet). Since it is implemented in hardware, this period isn't user configurable.
+	% subsection functional_tests (end)
 
+	\subsection{Power Consumption} % (fold)
+	\label{sub:power_consumption}
+		\includegraphics{eaprofiler}
+	% subsection power_consumption (end)
 % section results_and_tests (end)
 
 \section{Evaluation of Assignment} % (fold)
