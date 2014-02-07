@@ -109,11 +109,11 @@ _reset:
 	str R2, [port_a, #GPIO_CTRL]
 
 	//set port A pin 8-15 as output (leds)
-	ldr R2, =0x55555555 // 0101
+	ldr R2, =0x55555555 // 0101 Output in push-pull configuration with drive strength specified in the control register
 	str R2, [port_a, #GPIO_MODEH]
 
 	//set port C pin 0-7 as input (buttons)
-	ldr R2, =0x33333333 // 0011
+	ldr R2, =0x33333333 // 0011 Input enabled with glitch filter and pull-down/pull-up controlled in the dout register
 	str R2, [port_c, #GPIO_MODEL]
 
 	//enable pull-up resistors for buttons
