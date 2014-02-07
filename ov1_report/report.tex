@@ -1,3 +1,4 @@
+
 \documentclass[a4paper, 12pt]{article}
 \usepackage{graphicx}
 \title{Exercise 1, Group 2 \\ TDT4258 \\ Energy Efficient Computer Systems}
@@ -5,7 +6,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-In this report, we describe and discuss the first exercise in the Energy efficient computer systems course. In this excercise we developed a simple program for an EFM32 Giant Gecko microcontroller. The program lets the user manipulate a row of LEDs (light emitting diodes) using buttons on a game pad. Low energy modes and interrupts are used to reduce power consumption.
+	In this report, we describe and discuss the first exercise in the Energy efficient computer systems course. In this excercise we developed a simple program for an EFM32 Giant Gecko microcontroller. The program lets the user manipulate a row of LEDs (light emitting diodes) using buttons on a game pad. Low energy modes and interrupts are used to reduce power consumption.
 \end{abstract}
 \section{Introduction} % (fold)
 \label{sec:introduction}
@@ -16,7 +17,7 @@ In this report, we describe and discuss the first exercise in the Energy efficie
 
 \section{Description and Methodology} % (fold)
 \label{sec:description_and_methodology}
-    \subsection{Description of Program} % (fold)
+    \subsection{Description of the Program} % (fold)
     \label{sub:description_of_program}
         The functionality of the program is very simple. A single LED will be lit on the gamepad, and the user can press button 1 and 3 (``left'' and ``right'') to move the light left or right.
 
@@ -70,7 +71,7 @@ In this report, we describe and discuss the first exercise in the Energy efficie
         \caption{eaProfiler graph showing power consumption}
         \label{fig:profiler}
         \end{figure}
-        The graph in Figure \ref{fig:profiler} shows the difference in power consumption for one button pressed and no buttons pressed. When no buttons are pressed, the power consumption is very low, only 5.54 $\mu$ W. When a button is pressed, the power consumption increases considerably. Note that this is due to current flowing through the switch to ground, not because the MCU is running all the time.
+        The graph in Figure \ref{fig:profiler} shows the difference in power consumption for one button pressed and no buttons pressed. When no buttons are pressed, the power consumption is very low, only 5.54 $\mu$W. When a button is pressed, the power consumption increases considerably. Note that this is due to current flowing through the switch to ground, not because the MCU is running all the time.
 
         Also note that the LED is not included in the calculation, because it would dwarf everything else.
 	% subsection power_consumption (end)
@@ -78,7 +79,7 @@ In this report, we describe and discuss the first exercise in the Energy efficie
 
 \section{Evaluation of Assignment} % (fold)
 \label{sec:evaluation_of_assignment}
-The assignment was a good introduction to using the EFM32GG microcontroller. The compendium was easy to follow and made the task manageable. However the use of the reference manual was tedious, as it was not always easy to look up the information you actually needed. As an example we tried to find out how to return from the interrupt handler; looking at the quick reference and tried to find the instruction there, but were unable to do so. You may be able to find it in the 900 page reference manual, but trying to search through the manual for a task like this should not be necessary. Even though you want us to look at the reference manual, it should be for those things that we could realistically be expected to find there. Other than this, the exercise served as a good introduction to the course.
+	The assignment was a good introduction to using the EFM32GG microcontroller. The compendium was easy to follow and made the task manageable. However the use of the reference manual was tedious, as it was not always easy to look up the information you actually needed. As an example we tried to find out how to return from the interrupt handler; looking at the quick reference and tried to find the instruction there, but were unable to do so. You may be able to find it in the 900 page reference manual, but trying to search through the manual for a task like this should not be necessary. Even though you want us to look at the reference manual, it should be for those things that we could realistically be expected to find there. Other than this, the exercise served as a good introduction to the course.
 % section evaluation_of_assignment (end)
 
 \section{Conclusion} % (fold)
