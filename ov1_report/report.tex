@@ -55,15 +55,22 @@ In this exercise, we develop a simple program for an EFM32 Giant Gecko microcont
 		\begin{enumerate}
 			\item Pressing the left or right buttons should make the light move left or right, respectively. \\
 				  Result: It does.
-			\item The buttons should not glitch, i.e. a press should not be registered twice.
+			\item The buttons should not glitch, i.e. a press should not be registered twice.\\
 				  Result: This did happen occasionally.
 		\end{enumerate}
-		For the last one, our theory is that the built-in glitch filter in the EFM32GG has a period that is too short (20-50ns according to the data sheet). Since it is implemented in hardware, this period isn't user configurable.
+		For the last one, our theory is that the built-in glitch filter in the EFM32GG has a period that is too short (10-50ns according to the data sheet). Since it is implemented in hardware, this period isn't user configurable.
 	% subsection functional_tests (end)
 
 	\subsection{Power Consumption} % (fold)
 	\label{sub:power_consumption}
-		\includegraphics{eaprofiler}
+		\begin{figure}[!ht]
+        \includegraphics[width=\textwidth]{eaprofiler}
+        \caption{eaProfiler graph showing power consumption}
+        \label{fig:profiler}
+        \end{figure}
+        The graph in Figure \ref{fig:profiler} shows the difference in power consumption for one button pressed and no buttons pressed. When no buttons are pressed, the power consumption is very low, only 5.54 $\mu$ W. When a button is pressed, the power consumption increases considerably. Note that this is due to current flowing through the switch to ground, not because the MCU is running all the time.
+
+        Also note that the LED is not included in the calculation, because it would dwarf everything else.
 	% subsection power_consumption (end)
 % section results_and_tests (end)
 
@@ -74,11 +81,11 @@ In this exercise, we develop a simple program for an EFM32 Giant Gecko microcont
 
 \section{Conclusion} % (fold)
 \label{sec:conclusion}
-
+    In this assignment, we have learned several important techniques for energy efficient computer system development. We have seen that interrupts and energy modes are vital to keeping power usage low. The exercise also served as a gentle introduction to low-level programming which is quite different from the programming we are used to. While the rest of the exercises won't use assembly language, knowledge of assembly can be useful in the real world, especially for real-time systems.
 % section conclusion (end)
 
 \section{References} % (fold)
 \label{sec:references}
-
+    
 % section references (end)
 \end{document}
