@@ -1,0 +1,21 @@
+\section{Evaluation of Assignment} % (fold)
+\label{sec:evaluation_of_assignment}
+    The assignment was a good introduction to using the EFM32GG board. The 
+
+compendium was easy to follow and made the task rather trivial. However the use 
+
+of the reference manual was tedious, as it was not easy to look up the 
+
+information you actually needed. As an example we tried to find out how you 
+
+returned from the interrupt handler, looked at the quick reference and tried to 
+
+find the instruction there, but was unable to do so. You may be able to find it 
+
+in the 900 page reference manual, but trying to search through that manual for a 
+
+task like this should not be neccecary. In all I would say that the task itself 
+
+is a good introduction to the course, but even though you want us to look at the 
+
+reference manual, there might be a better way to do this.
