@@ -1,0 +1,1 @@
+In this report, we discuss and describe the first exercise in the Energy efficient computer system cours. In this excercise we developed a simple program for an EFM32 Giant Gecko microcontroller. The program lets the user manipulate a row of LEDs using buttons on a game pad. Low energy modes and interrupts are used to reduce power consumption.
