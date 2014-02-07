@@ -1,0 +1,5 @@
+We were given access to an EFM32GG-DK3750 development board with an ARM Cortex M3 based EFM32GG microcontroller. For this microcontroller, we were expected to write a small program in assembly to control LEDs on a peripheral game controller.
+
+A microcontroller is a CPU  with more units included on the same silicon dye, like the flexible GPIO I/O controller.
+
+An interrupt, in contrast to continuously polling the I/O, allows the CPU to enter a low power state if there is no work to be done. The interrupt will then awake the CPU and start the necessary interrupt handler routine.
