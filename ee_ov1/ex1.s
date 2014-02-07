@@ -150,28 +150,30 @@ _reset:
 
 .thumb_func
 gpio_handler:
+	// Clear interruptflags
 	ldr R3, =GPIO_BASE
 	mov R4, 0xff
 	str R4, [R3, #GPIO_IFC]
 
+	// load button status
 	ldr R5, [port_c, #GPIO_DIN]
 
-	ldr R7, =0xFFFFFFFE // bit 0
-	orr R6, R5, R7
-	mvn R6, R6
-	cbz R6, not_button_1
-	ror R2, R2, #1
-	b not_button_2
+	ldr R7, =0xFFFFFFFE // bit 0 low (button 1)
+	orr R6, R5, R7 // or to get all 1's if button 1 is pressed
+	mvn R6, R6 // negate so we can check if zero
+	cbz R6, not_button_1 // goto button 3 check routine if button 1 is not pressed
+	ror R2, R2, #1 // The order of the leds is opposite to the bit order so we rotate right by 1 to rotate leds left
+	b end_ih // goto exit
 
 not_button_1:
-	ldr R7, =0xFFFFFFFB // bit 2
-	orr R6, R5, R7
-	mvn R6, R6
-	cbz R6, not_button_2
-	ror R2, R2, #7
+	ldr R7, =0xFFFFFFFB // bit 2 low (button 3)
+	orr R6, R5, R7 // or to get all 1's if button 3 is pressed
+	mvn R6, R6 // negate so we can check if zero
+	cbz R6, end_ih // branch if button 3 is not pressed
+	ror R2, R2, #7 // rotate right by 7 to rotate leds right by 1
 
-not_button_2:
-	str R2, [port_a, #GPIO_DOUT]
+end_ih:
+	str R2, [port_a, #GPIO_DOUT] // store new led configuration value
 	bx LR // return
 
 	/////////////////////////////////////////////////////////////////////////////
