@@ -10,7 +10,7 @@
 \end{abstract}
 \section{Introduction} % (fold)
 \label{sec:introduction}
-	A microcontroller is a CPU with the most necessary components included on the same silicon dye, i.e. the flexible GPIO I/O controller. The purpose of this integration is to allow for more minimal and energy efficient designs. The GPIO controller is included in the EFM32GG microcontroller and is essential for this exercise.
+	A microcontroller is a CPU with the most necessary components included on the same silicon die, i.e. the flexible GPIO I/O controller. The purpose of this integration is to allow for more minimal and energy efficient designs. The GPIO controller is included in the EFM32GG microcontroller and is essential for this exercise.
 	An import aspect of this exercise is to use interrupts for controlling the buttons on the game pad. An interrupt, in contrast to continuously polling the I/O, allows the CPU to enter a low power state if there is no work to be done. The interrupt will then awake the CPU and start the necessary interrupt handler routine.
 	For the exercise we were given access to an EFM32GG-DK3750 development board with an ARM Cortex M3 based EFM32GG microcontroller. We were also given access to a custom peripheral game pad, with buttons and LEDs, for the development board. For this microcontroller, we were expected to write a small program in the assembly programming language. The program should allow a user to use the buttons on the game pad to control the LEDs. The program should do this while using as little energy as possible.
 % section introduction (end)
@@ -55,6 +55,12 @@
 \label{sec:results_and_tests}
 	\subsection{Functional Tests} % (fold)
 	\label{sub:functional_tests}
+        \begin{figure}[!ht]
+        \includegraphics[width=0.7\textwidth]{IMG064}
+        \includegraphics[width=0.7\textwidth]{IMG065}
+        \caption{Pressing the buttons makes the light move.}
+        \label{fig:buttons}
+        \end{figure}
 		\begin{enumerate}
 			\item Pressing the left (button 1) or right (button 3) buttons should make the light move left or right, respectively. \\
 				  Result: It does.
@@ -89,6 +95,10 @@
 
 \section{References} % (fold)
 \label{sec:references}
-    
+    \begin{itemize}
+        \item TDT4258 Exercise Compendium, from the course pages on It's Learning.
+        \item ARM Thumb-2 Quick Reference, from the course pages on It's Learning.
+        \item EFM32GG990 Datasheet, \textit{http://cdn.energymicro.com/dl/devices/pdf/d0046\_efm32gg990\_datasheet.pdf}
+    \end{itemize}
 % section references (end)
 \end{document}
