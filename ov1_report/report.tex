@@ -8,10 +8,13 @@
 \begin{abstract}
 	In this report, we describe and discuss the first exercise in the Energy efficient computer systems course. In this excercise we developed a simple program for an EFM32 Giant Gecko microcontroller. The program lets the user manipulate a row of LEDs (light emitting diodes) using buttons on a game pad. Low energy modes and interrupts are used to reduce power consumption.
 \end{abstract}
+\pagebreak
 \section{Introduction} % (fold)
 \label{sec:introduction}
 	A microcontroller is a CPU with the most necessary components included on the same silicon die, i.e. the flexible GPIO I/O controller. The purpose of this integration is to allow for more minimal and energy efficient designs. The GPIO controller is included in the EFM32GG microcontroller and is essential for this exercise.
-	An import aspect of this exercise is to use interrupts for controlling the buttons on the game pad. An interrupt, in contrast to continuously polling the I/O, allows the CPU to enter a low power state if there is no work to be done. The interrupt will then awake the CPU and start the necessary interrupt handler routine.
+	
+	An important aspect of this exercise is to use interrupts for controlling the buttons on the game pad. An interrupt, in contrast to continuously polling the I/O, allows the CPU to enter a low power state if there is no work to be done. The interrupt will then awake the CPU and start the necessary interrupt handler routine.
+	
 	For the exercise we were given access to an EFM32GG-DK3750 development board with an ARM Cortex M3 based EFM32GG microcontroller. We were also given access to a custom peripheral game pad, with buttons and LEDs, for the development board. For this microcontroller, we were expected to write a small program in the assembly programming language. The program should allow a user to use the buttons on the game pad to control the LEDs. The program should do this while using as little energy as possible.
 % section introduction (end)
 
@@ -56,8 +59,8 @@
 	\subsection{Functional Tests} % (fold)
 	\label{sub:functional_tests}
         \begin{figure}[!ht]
-        \includegraphics[width=0.7\textwidth]{IMG064}
-        \includegraphics[width=0.7\textwidth]{IMG065}
+        \centerline{\includegraphics[width=0.7\textwidth]{IMG064}}
+        \centerline{\includegraphics[width=0.7\textwidth]{IMG065}}
         \caption{Pressing the buttons makes the light move.}
         \label{fig:buttons}
         \end{figure}
@@ -67,7 +70,7 @@
 			\item The buttons should not glitch, i.e. a press should not be registered twice.\\
 				  Result: This did happen occasionally.
 		\end{enumerate}
-		For the last one, our theory is that the built-in glitch filter in the EFM32GG has a period that is too short (typically 10-50ns according to the data sheet). Since it is implemented in hardware, this period isn't user configurable.
+		For the last one, our theory is that the built-in glitch filter in the EFM32GG has a period that is too short (10-50ns according to the data sheet). Since it is implemented in hardware, this period isn't user configurable.
 	% subsection functional_tests (end)
 
 	\subsection{Power Consumption} % (fold)
@@ -98,7 +101,8 @@
     \begin{itemize}
         \item TDT4258 Exercise Compendium, from the course pages on It's Learning.
         \item ARM Thumb-2 Quick Reference, from the course pages on It's Learning.
-        \item EFM32GG990 Datasheet, \textit{http://cdn.energymicro.com/dl/devices/pdf/d0046\_efm32gg990\_datasheet.pdf}
+        \item EFM32GG990 Datasheet, \\
+		\textit{http://cdn.energymicro.com/dl/devices/pdf/d0046\_efm32gg990\_datasheet.pdf}
     \end{itemize}
 % section references (end)
 \end{document}
