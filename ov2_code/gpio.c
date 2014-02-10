@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+#include "ex2.h"
 
 /* function to set up GPIO mode and interrupts*/
 void setupGPIO()

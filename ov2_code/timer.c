@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+#include "ex2.h"
 
 /* function to setup the timer */
 void setupTimer(uint16_t period)
