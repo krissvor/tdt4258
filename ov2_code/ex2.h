@@ -7,4 +7,7 @@ void setupDAC();
 void setupNVIC();
 void setupGPIO();
 
+/* Declaration of helper functions */
+void ButtonHandler();
+
 #endif
