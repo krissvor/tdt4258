@@ -22,10 +22,16 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
       count = 0;
       sample = (sample == low ? high : low);
     }
+
   if (playing) 
     {
       *DAC0_CH0DATA = sample;
       *DAC0_CH1DATA = sample;
+    }
+  else 
+    {
+      *DAC0_CH0DATA = 0;
+      *DAC0_CH1DATA = 0;
     }
 }
 /* GPIO even pin interrupt handler */
@@ -44,7 +50,7 @@ void ButtonHandler()
 {
   *GPIO_IFC = 0xFF;
   *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
-  if (~(*GPIO_PC_DIN))
+  if (~(*GPIO_PC_DIN) & 0xff)
     {
       playing = 1;
     }
