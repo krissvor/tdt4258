@@ -4,18 +4,29 @@
 
 /* Half-periods for each semitone in 1st octave */
 /* C1 approximately 32.7 Hz */
-#define NOTE_C  673
-#define NOTE_Db 635
-#define NOTE_D  599
-#define NOTE_Eb 566
-#define NOTE_E  534
-#define NOTE_F  504
-#define NOTE_Gb 476
-#define NOTE_G  449
-#define NOTE_Ab 424
-#define NOTE_A  400
+#define NOTE_C  674
+#define NOTE_Db 633
+#define NOTE_D  601
+#define NOTE_Eb 567
+#define NOTE_E  535
+#define NOTE_F  505
+#define NOTE_Gb 477
+#define NOTE_G  450
+#define NOTE_Ab 425
+#define NOTE_A  401
 #define NOTE_Bb 378
-#define NOTE_B  336
+#define NOTE_B  357
+
+/* Some commonly seen amplitudes */
+#ifndef TEST
+#define MAX_AMPLITUDE 0xFFF
+#define MAX_AMPLITUDE_PER_CHANNEL 0x3FF
+#define MAX_BIAS 0x7FF
+#else
+#define MAX_AMPLITUDE 0xFF
+#define MAX_AMPLITUDE_PER_CHANNEL 0x3F
+#define MAX_BIAS 0x7F
+#endif
 
 /* Half-period is given in the first octave. 
    Amplitudes greater than 0x3FF will be clamped. */
@@ -34,7 +45,7 @@ void triangle_play_note(note_t note);
 void noise_play(note_t note); /* Disregards period and octave */
 
 uint16_t get_sample();
-void put_samples(uint16_t *buf);
+void put_samples(uint16_t *buf, uint16_t count);
 
 /* "private" functions */
 uint16_t square1_get_sample();
