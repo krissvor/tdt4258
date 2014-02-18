@@ -33,10 +33,6 @@ const note_t silent_note =
 
 void fix_note(note_t *note)
 {
-    if (note->octave == 0)
-    {
-        note->octave = 1;
-    }
     if (note->amplitude > MAX_AMPLITUDE_PER_CHANNEL)
     {
         note->amplitude = MAX_AMPLITUDE_PER_CHANNEL;
