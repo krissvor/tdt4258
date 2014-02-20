@@ -101,13 +101,6 @@ uint16_t square1_get_sample()
 
         int16_t amp_diff = square1_amp_end - square1_amp_begin;
         square1_amplitude = square1_amp_begin + (amp_diff * square1_progress) / square1_duration;
-        #ifdef DEBUG
-        fprintf(stderr, "%d %d %d %d\n", 
-            amp_diff, 
-            amp_diff * square1_progress, 
-            (amp_diff * square1_progress) / square1_duration, 
-            square1_amplitude);
-        #endif
     }
 
     return sample;
@@ -282,6 +275,33 @@ int main(int argc, char *argv[])
         }
 
         amp /= 1.2;
+    }
+
+    return 0;
+}
+
+#endif
+
+#ifdef TEST2
+#include <stdio.h>
+int main(int argc, char *argv[])
+{
+    int i, j;
+    srand(0);
+
+    uint16_t amp = MAX_AMPLITUDE_PER_CHANNEL;
+
+    square1_play_note((square_note_t){.period_begin = NOTE_G, .period_end = NOTE_B, .octave = 5, .amp_begin = amp, .amp_end = amp/1.2, .duty_cycle = 50, .duration = 44100});
+    square2_play_note((square_note_t){.period_begin = NOTE_G, .period_end = NOTE_B, .octave = 5, .amp_begin = 0, .amp_end = 0, .duty_cycle = 50, .duration = 44100});
+    triangle_play_note(silent_note);
+    noise_play(silent_note);
+
+
+    for (j = 0; j < 44100; ++j)
+    {
+        uint16_t sample = get_sample();
+        //printf("%c%c", (sample >> 8), (sample & 0xff));
+        printf("%c", sample);
     }
 
     return 0;
