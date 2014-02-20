@@ -28,8 +28,38 @@
 #define MAX_BIAS 0x7F
 #endif
 
-/* Half-period is given in the first octave. 
-   Amplitudes greater than 0x3FF will be clamped. */
+/* Period is given in the first octave. 
+   Amplitudes greater than 0x3FF will be clamped. 
+   Duty cycle is given in percent. */
+typedef struct 
+{
+    uint16_t period_begin;
+    uint16_t octave;
+    uint16_t amp_begin;
+
+    uint16_t period_end;
+    uint16_t amp_end;
+    uint16_t duty_cycle;
+    int32_t duration;
+} square_note_t;
+
+typedef struct
+{
+    uint16_t period_begin;
+    uint16_t octave;
+    uint16_t amplitude;
+
+    uint16_t period_end;
+    uint16_t duration;
+} triangle_note_t;
+
+typedef struct
+{
+    uint16_t amplitude;
+    uint16_t multiplier;
+} noise_note_t;
+
+// TODO: Legacy
 typedef struct 
 {
     uint16_t half_period;
@@ -37,12 +67,10 @@ typedef struct
     uint16_t amplitude;
 } note_t;
 
-extern const note_t silent_note;
-
-void square1_play_note(note_t note);
-void square2_play_note(note_t note);
+void square1_play_note(square_note_t note);
+void square2_play_note(square_note_t note);
 void triangle_play_note(note_t note);
-void noise_play(note_t note); /* Disregards period and octave */
+void noise_play(note_t note);
 
 uint16_t get_sample();
 void put_samples(uint16_t *buf, uint16_t count);
@@ -53,6 +81,5 @@ uint16_t square2_get_sample();
 uint16_t triangle_get_sample();
 uint16_t noise_get_sample();
 
-void fix_note(note_t *note);
 
 #endif
