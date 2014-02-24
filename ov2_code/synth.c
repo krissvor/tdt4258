@@ -261,7 +261,7 @@ void triangle_play_note(triangle_note_t note)
 
     if (triangle_period_begin != old_period_end)
     {
-        triangle_half_period = (triangle_period_begin * triangle_duty_cycle) / 100; // HMMMMMMMMMMMM!!!!!!!!
+        triangle_half_period = triangle_period_begin; // HMMMMMMMMMMMM!!!!!!!!
         triangle_amplitude = triangle_amp_begin;
         triangle_direction = !triangle_direction;
         triangle_sample_idx = 0;
@@ -276,13 +276,13 @@ uint16_t triangle_get_sample()
     {
         if (triangle_direction) /* Rising edge */
         {
-            sample = (triangle_note.amplitude * (triangle_half_period - triangle_sample_idx)) / triangle_half_period;
+            sample = (triangle_amplitude * (triangle_half_period - triangle_sample_idx)) / triangle_half_period;
         }
         else /* Falling edge */
         {
-            sample = (triangle_note.amplitude * triangle_sample_idx) / triangle_half_period;
+            sample = (triangle_amplitude * triangle_sample_idx) / triangle_half_period;
         }
-        bias -= triangle_note.amplitude / 2;
+        bias -= triangle_amplitude / 2;
     }
     else
     {

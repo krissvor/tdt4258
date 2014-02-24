@@ -70,9 +70,11 @@ typedef struct
     uint16_t amplitude;
 } note_t;
 
+extern const note_t silent_note;
+
 void square1_play_note(square_note_t note);
 void square2_play_note(square_note_t note);
-void triangle_play_note(note_t note);
+void triangle_play_note(triangle_note_t note);
 void noise_play(note_t note);
 
 uint16_t get_sample();

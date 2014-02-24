@@ -3,29 +3,44 @@
 
 #include "efm32gg.h"
 #include "ex2.h"
+#include "synth.h"
 
 
 static uint16_t playing = 0;
 
-static uint16_t count = 0;
+static uint16_t sample_idx = 0;
+static uint16_t note_idx = 0;
 static uint16_t sample = 0;
-const static uint16_t low = 0;
-const static uint16_t high = (1<<12) - 1;
 
 
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler() 
 {
   *TIMER1_IFC = 1;
-  count++;
-  if (count >= 100)
-    {
-      count = 0;
-      sample = (sample == low ? high : low);
-    }
+
+  uint16_t coin[] = {0, 2*NOTE_Bb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb};
+  uint16_t amp = MAX_AMPLITUDE_PER_CHANNEL;
 
   if (playing) 
     {
+      if (sample_idx % 4410 == 0)
+        {
+          sample_idx = 0;
+          note_idx++;
+	  if (note_idx < 11)
+            {
+	      square1_play_note((square_note_t) {.period_begin = coin[note_idx], .period_end = coin[note_idx], .octave = 5, .amp_begin = amp, .amp_end = amp/1.2, .duty_cycle = 50, .duration = 4410});
+              square2_play_note((square_note_t){.period_begin = coin[note_idx], .period_end = coin[note_idx], .octave = 5, .amp_begin = 0, .amp_end = 0, .duty_cycle = 50, .duration = 4410});
+              triangle_play_note((triangle_note_t) {.amp_begin = 0, .amp_end = 0});
+              noise_play(silent_note);
+            } 
+          else
+            {
+              playing = 0;
+            }
+       }
+      sample = square1_get_sample();
+      sample_idx++;
       *DAC0_CH0DATA = sample;
       *DAC0_CH1DATA = sample;
     }
@@ -58,6 +73,8 @@ void ButtonHandler()
   if (~(*GPIO_PC_DIN) & 0xff)
     {
       playing = 1;
+      note_idx = 0;
+      sample_idx = 0;
     }
   else
     {
