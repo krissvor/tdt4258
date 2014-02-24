@@ -1,6 +1,7 @@
 #ifndef _SYNTH_H
 #define _SYNTH_H 
 #include <stdint.h>
+#include <stdlib.h>
 
 /* Half-periods for each semitone in 1st octave */
 /* C1 approximately 32.7 Hz */
@@ -47,15 +48,17 @@ typedef struct
 {
     uint16_t period_begin;
     uint16_t octave;
-    uint16_t amplitude;
+    uint16_t amp_begin;
 
     uint16_t period_end;
-    uint16_t duration;
+    uint16_t amp_end;
+    int32_t duration;
 } triangle_note_t;
 
 typedef struct
 {
-    uint16_t amplitude;
+    uint16_t amp_begin;
+    uint16_t amp_end;
     uint16_t multiplier;
 } noise_note_t;
 
