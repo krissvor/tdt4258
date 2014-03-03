@@ -290,10 +290,12 @@ uint16_t triangle_get_sample()
     }
 
     triangle_sample_idx++;
+    triangle_progress++;
     if (triangle_sample_idx >= triangle_half_period)
     {
         triangle_sample_idx = 0;
         triangle_direction = !triangle_direction;
+	triangle_amplitude = ((triangle_amp_begin + triangle_amp_end) * triangle_progress) / triangle_duration; 
     }
 
     return sample;

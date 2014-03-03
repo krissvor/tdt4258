@@ -5,6 +5,7 @@
 #include "ex2.h"
 #include "synth.h"
 #include "sounds.h"
+#include "g2lib.h"
 
 static uint16_t playing = 0;
 
@@ -21,8 +22,6 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 
   if (playing) 
     {
-      *GPIO_PA_DOUT = 0x55 << 8;
-
       if (sample_idx % current_sound.note_duration == 0)
         {
           sample_idx = 0;
@@ -71,7 +70,14 @@ void ButtonHandler()
 {
   *GPIO_IFC = 0xFF;
   *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
-  if (~(*GPIO_PC_DIN) & 0xff)
+  if (GPIO_pollPin(GPIO_portC, 6))
+    {
+      current_sound = cannon;
+      playing = 1;
+      note_idx = -1;
+      sample_idx = 0;
+    }
+  else if (GPIO_pollPin(GPIO_portC, 7))
     {
       current_sound = coin;
       playing = 1;
@@ -80,6 +86,7 @@ void ButtonHandler()
     }
   else
     {
+
     }
 }
 

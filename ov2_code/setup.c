@@ -31,15 +31,13 @@ void setupGPIO()
 }
 
 
-#define CLOCK_PERIOD_44KHZ 317
-
 /* function to setup the timer */
 void setupTimer(uint16_t period)
 {
 	NVIC_IRQenable(IRQ_TIMER1, true);
 	CMU_periClockEnable(CMU_TIMER1, true);
 
-	*TIMER1_TOP = CLOCK_PERIOD_44KHZ;
+	*TIMER1_TOP = period;
 	*TIMER1_IEN = 1;
 	*TIMER1_CMD = 1;
 }
