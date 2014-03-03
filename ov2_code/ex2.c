@@ -18,20 +18,19 @@
 /* Your code will start executing here */
 int main(void) 
 {
-  /* Call the peripheral setup functions */
-  setupGPIO();
-  setupDAC();
-  setupTimer(SAMPLE_PERIOD);
-  
-  /* Enable interrupt handling */
-  setupNVIC();
-  
-  /* TODO for higher energy efficiency, sleep while waiting for interrupts
-     instead of infinite loop for busy-waiting
-  */
-  while(1);
+	/* Call the peripheral setup functions */
+	setupGPIO();
+	setupDAC();
+	setupTimer(SAMPLE_PERIOD);
 
-  return 0;
+
+	/*
+	 * TODO for higher energy efficiency, sleep while waiting for interrupts
+	 * instead of infinite loop for busy-waiting
+	 */
+	while(1);
+
+	return 0;
 }
 
 
