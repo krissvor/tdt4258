@@ -303,23 +303,52 @@ uint16_t triangle_get_sample()
  * Noise Generator
  */
 
- static uint16_t noise_amplitude;
+static uint32_t rand_state = 0;
 
- void noise_play(note_t note)
- {
-    noise_amplitude = note.amplitude;
+uint32_t rand()
+{
+    rand_state = (1103515245 * rand_state + 12345) & 0xFFFFFFFF;
+    return rand_state;
+}
+
+static uint16_t noise_amplitude;
+static uint16_t noise_multiplier;
+static uint16_t noise_sample_idx;
+static uint16_t noise_sample;
+
+void noise_play(noise_note_t note)
+{
+    noise_amplitude = note.amp_begin;
+    noise_multiplier = note.multiplier;
+    noise_sample_idx = 0;
 }
 
 uint16_t noise_get_sample()
 {
-    uint16_t sample;
-
-    sample = rand() & MAX_AMPLITUDE_PER_CHANNEL;
-    sample = (sample * noise_amplitude) / MAX_AMPLITUDE_PER_CHANNEL;
+    noise_sample_idx++; 
+    if (noise_sample_idx >= noise_multiplier)
+      {
+        noise_sample = rand() & MAX_AMPLITUDE_PER_CHANNEL;
+        noise_sample = (noise_sample * noise_amplitude) / MAX_AMPLITUDE_PER_CHANNEL;
+        noise_sample_idx = 0;
+      }
 
     bias -= noise_amplitude / 2;
 
-    return sample;
+    return noise_sample;
+}
+
+/*
+ * Write samples for DMA
+ */
+
+void put_samples(uint16_t *buf, uint16_t count)
+{
+    int i;
+    for (i = 0; i < count; i++)
+    {
+        buf[i] = get_sample();
+    }
 }
 
 #ifdef TEST

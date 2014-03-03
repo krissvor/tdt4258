@@ -1,7 +1,6 @@
 #ifndef _SYNTH_H
 #define _SYNTH_H 
 #include <stdint.h>
-#include <stdlib.h>
 
 /* Half-periods for each semitone in 1st octave */
 /* C1 approximately 32.7 Hz */
@@ -75,7 +74,7 @@ extern const note_t silent_note;
 void square1_play_note(square_note_t note);
 void square2_play_note(square_note_t note);
 void triangle_play_note(triangle_note_t note);
-void noise_play(note_t note);
+void noise_play(noise_note_t note);
 
 uint16_t get_sample();
 void put_samples(uint16_t *buf, uint16_t count);
