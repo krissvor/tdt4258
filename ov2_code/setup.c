@@ -9,12 +9,6 @@
 /* function to set up GPIO mode and interrupts */
 void setupGPIO()
 {
-	/* TODO set input and output pins for the joystick */
-
-	/*
-	 * Example of HW access from C code: turn on joystick LEDs D4-D8
-	 * check efm32gg.h for other useful register definitions
-	 */
 
 	NVIC_IRQenable(IRQ_GPIO_EVEN, true);
 	NVIC_IRQenable(IRQ_GPIO_ODD, true);
@@ -23,7 +17,7 @@ void setupGPIO()
 
 	GPIO_portSetupRange(GPIO_portA, 8, 15, GPIO_PUSHPULLDRIVE);
 	GPIO_driveStrength(GPIO_portA, GPIO_HIGH);
-	*GPIO_PA_DOUT = 0xFEFEFEFE;
+	//*GPIO_PA_DOUT = 0xFEFEFEFE;
 
 	GPIO_portSetupRange(GPIO_portC, 0, 7, GPIO_INPUTPULLFILTER);
 	*GPIO_PC_DOUT = 0xFF;
@@ -46,7 +40,7 @@ void setupTimer(uint16_t period)
 void setupDAC()
 {
 	/*
-	 * TODO enable and set up the Digital-Analog Converter
+	 * Enable and set up the Digital-Analog Converter
 	 *
 	 * 1. Enable the DAC clock by setting bit 17 in CMU_HFPERCLKEN0
 	 * 2. Prescale DAC clock by writing 0x50010 to DAC0_CTRL

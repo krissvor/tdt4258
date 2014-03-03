@@ -68,7 +68,7 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 
 void ButtonHandler() 
 {
-  *GPIO_IFC = 0xFF;
+  GPIO_clearAllInterrupts();
   *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
   if (GPIO_pollPin(GPIO_portC, 6))
     {

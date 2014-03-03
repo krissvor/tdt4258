@@ -89,7 +89,8 @@ void GPIO_clearAllInterrupts();
 uint32_t GPIO_pollPort(GPIO_Port portnr);
 bool GPIO_pollPin(GPIO_Port portnr, unsigned int pinnr);
 /*
-*/
+
+ */
 
 
 #endif
