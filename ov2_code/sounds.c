@@ -98,7 +98,7 @@ static square_note_t coin_notes[] =
     {.period_begin = NOTE_Eb, .period_end = NOTE_Eb, .octave = 5, .amp_begin = MAX_AMPLITUDE_PER_CHANNEL/28.93, .amp_end = MAX_AMPLITUDE_PER_CHANNEL/40.5, .duty_cycle = 50, .duration = 4410}
   };
 
-static sound_t coin = 
+sound_t coin = 
   {
     .note_count = 11,
     .note_duration = 4410,
@@ -123,7 +123,7 @@ static noise_note_t cannon_notes[] =
     {.amp_begin = MAX_AMPLITUDE_PER_CHANNEL/28.93, .amp_end = MAX_AMPLITUDE_PER_CHANNEL/28.93, .multiplier = 4, .duration = 4410},
   };
 
-static sound_t cannon =
+sound_t cannon =
   {
     .note_count = 11,
     .note_duration = 4410,

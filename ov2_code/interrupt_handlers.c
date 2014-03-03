@@ -12,7 +12,7 @@ static uint16_t sample_idx = 0;
 static int16_t note_idx = -1;
 static uint16_t sample = 0;
 
-static sound_t *current_sound;
+static sound_t current_sound;
 
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler() 
@@ -21,16 +21,18 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 
   if (playing) 
     {
-      if (sample_idx > current_sound->note_duration)
+      *GPIO_PA_DOUT = 0x55 << 8;
+
+      if (sample_idx % current_sound.note_duration == 0)
         {
           sample_idx = 0;
           note_idx++;
-	  if (note_idx < current_sound->note_count)
+	  if (note_idx < current_sound.note_count)
             {
-	      square1_play_note(current_sound->sq1_notes[note_idx]);
-	      square2_play_note(current_sound->sq2_notes[note_idx]);
-	      triangle_play_note(current_sound->tri_notes[note_idx]);
-	      noise_play(current_sound->noise_notes[note_idx]);
+	      square1_play_note(current_sound.sq1_notes[note_idx]);
+	      square2_play_note(current_sound.sq2_notes[note_idx]);
+	      triangle_play_note(current_sound.tri_notes[note_idx]);
+	      noise_play(current_sound.noise_notes[note_idx]);
             } 
           else
             {
@@ -44,6 +46,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
     }
   else 
     {
+      *GPIO_PA_DOUT = 0xFF00;
       *DAC0_CH0DATA = 0;
       *DAC0_CH1DATA = 0;
     }
@@ -70,7 +73,7 @@ void ButtonHandler()
   *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
   if (~(*GPIO_PC_DIN) & 0xff)
     {
-      current_sound = &coin;
+      current_sound = coin;
       playing = 1;
       note_idx = -1;
       sample_idx = 0;

@@ -28,3 +28,7 @@
 *.aux
 *.pdf
 *.prefs
+
+# emacs crap
+\#*\#
+*~

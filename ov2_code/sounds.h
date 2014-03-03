@@ -13,7 +13,7 @@ typedef struct
   noise_note_t *noise_notes;
 } sound_t;
 
-static sound_t cannon;
-static sound_t coin;
+extern sound_t cannon;
+extern sound_t coin;
 
 #endif
