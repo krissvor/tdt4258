@@ -33,7 +33,7 @@ void setupTimer(uint16_t period)
 
 	*TIMER1_TOP = period;
 	*TIMER1_IEN = 1;
-	*TIMER1_CMD = 1;
+	//*TIMER1_CMD = 1;
 }
 
 
@@ -51,8 +51,8 @@ void setupDAC()
 	CMU_periClockEnable(CMU_DAC0, true);
 
 	*DAC0_CTRL = 0x50010;
-	*DAC0_CH0CTRL = 1;
-	*DAC0_CH1CTRL = 1;
+	//*DAC0_CH0CTRL = 1;
+	//*DAC0_CH1CTRL = 1;
 }
 
 
