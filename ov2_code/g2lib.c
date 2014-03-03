@@ -101,11 +101,14 @@ void GPIO_IRQsetupRange(GPIO_Port portnr, unsigned int fromPinnr, unsigned int t
 
 /* Setup GPIO pin on port with the selected mode */
 void GPIO_portSetup(GPIO_Port portnr, unsigned int pinnr, GPIO_portMode mode) {
-	volatile uint32_t* portBase = GPIO_BASE + portnr * GPIO_PORT_SIZE;
 	if (pinnr < 8) {
-		*(portBase + GPIO_MODEL_OFFSET) |= mode << pinnr * 4;
+		volatile uint32_t* regAddress = (volatile uint32_t*)((GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_MODEL_OFFSET);
+		*regAddress |= mode << pinnr * 4;
+
 	} else if (pinnr < 16) {
-		*(portBase + GPIO_MODEH_OFFSET) |= mode << (pinnr - 8) * 4;
+		volatile uint32_t* regAddress = (volatile uint32_t*)((GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_MODEH_OFFSET);
+		*regAddress |= mode << (pinnr - 8) * 4;
+
 	} else {
 		return; // wrong pin number
 	}
@@ -122,7 +125,7 @@ void GPIO_portSetupRange(GPIO_Port portnr, unsigned int fromPinnr, unsigned int 
 
 /* Set drive strength for the selected port */
 void GPIO_driveStrength(GPIO_Port portnr, GPIO_driveMode mode) {
-	volatile uint32_t* portBase = GPIO_BASE + portnr * GPIO_PORT_SIZE;
+	volatile uint32_t* portBase = (volatile uint32_t*)(GPIO_BASE + portnr * GPIO_PORT_SIZE);
 	*portBase = mode;
 }
 
@@ -141,8 +144,16 @@ void GPIO_clearAllInterrupts() {
 
 /* Return the DIN register contents for the given port */
 uint32_t GPIO_pollPort(GPIO_Port portnr) {
-	volatile uint32_t* adressDIN = (GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_DIN_OFFSET;
+	volatile uint32_t* adressDIN = (volatile uint32_t*)((GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_DIN_OFFSET);
 	return *adressDIN;
+}
+
+
+/* Check if the specified pin is active. Assuming active low */
+bool GPIO_pollPin(GPIO_Port portnr, unsigned int pinnr) {
+	volatile uint32_t* adressDIN = (volatile uint32_t*)((GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_DIN_OFFSET);
+
+	return ~(*adressDIN | ~(1 << pinnr)) != 0;
 }
 
 

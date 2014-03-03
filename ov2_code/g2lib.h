@@ -87,8 +87,8 @@ void GPIO_driveStrength(GPIO_Port portnr, GPIO_driveMode mode);
 void GPIO_clearInterrupt(unsigned int pinnr);
 void GPIO_clearAllInterrupts();
 uint32_t GPIO_pollPort(GPIO_Port portnr);
-/*
 bool GPIO_pollPin(GPIO_Port portnr, unsigned int pinnr);
+/*
 */
 
 

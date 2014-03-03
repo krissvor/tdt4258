@@ -21,9 +21,9 @@ void setupGPIO()
 	CMU_periClockEnable(CMU_GPIO, true);
 	GPIO_IRQsetupRange(GPIO_portC, 0, 7, true, true, true);
 
-	GPIO_driveStrength(GPIO_portA, GPIO_HIGH);
 	GPIO_portSetupRange(GPIO_portA, 8, 15, GPIO_PUSHPULLDRIVE);
-	*GPIO_PA_DOUT = 0x0700; /* turn on LEDs D4-D8 (LEDs are active low) */
+	GPIO_driveStrength(GPIO_portA, GPIO_HIGH);
+	*GPIO_PA_DOUT = 0xFEFEFEFE;
 
 	GPIO_portSetupRange(GPIO_portC, 0, 7, GPIO_INPUTPULLFILTER);
 	*GPIO_PC_DOUT = 0xFF;
