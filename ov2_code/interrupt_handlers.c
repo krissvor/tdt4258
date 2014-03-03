@@ -4,35 +4,33 @@
 #include "efm32gg.h"
 #include "ex2.h"
 #include "synth.h"
-
+#include "sounds.h"
 
 static uint16_t playing = 0;
 
 static uint16_t sample_idx = 0;
-static uint16_t note_idx = 0;
+static int16_t note_idx = -1;
 static uint16_t sample = 0;
-static uint16_t amp;
+
+static sound_t *current_sound;
 
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler() 
 {
   *TIMER1_IFC = 1;
 
-  uint16_t coin[] = {0, 2*NOTE_Bb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb, NOTE_Eb};
-
   if (playing) 
     {
-      if (sample_idx % 4410 == 0)
+      if (sample_idx > current_sound->note_duration)
         {
           sample_idx = 0;
           note_idx++;
-	  if (note_idx < 11)
+	  if (note_idx < current_sound->note_count)
             {
-	      square1_play_note((square_note_t) {.period_begin = coin[note_idx], .period_end = coin[note_idx], .octave = 5, .amp_begin = 0, .amp_end = 0, .duty_cycle = 50, .duration = 4410});
-              square2_play_note((square_note_t){.period_begin = coin[note_idx], .period_end = coin[note_idx], .octave = 5, .amp_begin = 0, .amp_end = 0, .duty_cycle = 50, .duration = 4410});
-              triangle_play_note((triangle_note_t) {.amp_begin = 0, .amp_end = 0});
-              noise_play((noise_note_t) {.amp_begin = amp, .multiplier = 4});
-              amp /= 1.4;
+	      square1_play_note(current_sound->sq1_notes[note_idx]);
+	      square2_play_note(current_sound->sq2_notes[note_idx]);
+	      triangle_play_note(current_sound->tri_notes[note_idx]);
+	      noise_play(current_sound->noise_notes[note_idx]);
             } 
           else
             {
@@ -72,14 +70,13 @@ void ButtonHandler()
   *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
   if (~(*GPIO_PC_DIN) & 0xff)
     {
+      current_sound = &coin;
       playing = 1;
-      note_idx = 0;
-      amp = MAX_AMPLITUDE_PER_CHANNEL;
+      note_idx = -1;
       sample_idx = 0;
     }
   else
     {
-      playing = 1;
     }
 }
 

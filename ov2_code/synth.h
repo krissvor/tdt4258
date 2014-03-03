@@ -59,6 +59,7 @@ typedef struct
     uint16_t amp_begin;
     uint16_t amp_end;
     uint16_t multiplier;
+    int32_t duration;
 } noise_note_t;
 
 // TODO: Legacy
