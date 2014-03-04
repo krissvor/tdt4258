@@ -15,10 +15,12 @@ void setupGPIO()
 	CMU_periClockEnable(CMU_GPIO, true);
 	GPIO_IRQsetupRange(GPIO_portC, 0, 7, false, true, true);
 
+	// LED setup
 	GPIO_portSetupRange(GPIO_portA, 8, 15, GPIO_PUSHPULLDRIVE);
 	GPIO_driveStrength(GPIO_portA, GPIO_HIGH);
 	//*GPIO_PA_DOUT = 0xFEFEFEFE;
 
+	// Button setup
 	GPIO_portSetupRange(GPIO_portC, 0, 7, GPIO_INPUTPULLFILTER);
 	*GPIO_PC_DOUT = 0xFF;
 
@@ -33,11 +35,9 @@ void setupTimer(uint16_t period)
 	NVIC_IRQenable(IRQ_TIMER1, true);
 	CMU_periClockEnable(CMU_TIMER1, true);
 
-	*TIMER1_CMD = 2;
-	*TIMER1_IEN = 1;
-	*TIMER1_IFC = 1;
 	*TIMER1_TOP = period;
-	//*TIMER1_CMD = 1;
+	*TIMER1_IEN = 1;
+	*TIMER1_CMD = 1;
 }
 
 

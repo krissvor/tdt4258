@@ -39,7 +39,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 			else
 			{
 				playing = 0;
-				*TIMER1_CMD = 2;
+				//*TIMER1_CMD = 2;
 				*DAC0_CH0CTRL = 0;
 				*DAC0_CH1CTRL = 0;
 			}
@@ -81,7 +81,7 @@ void ButtonHandler()
 	*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
 	if (GPIO_pollPin(GPIO_portC, 6))
 	{
-		*TIMER1_CMD = 1;
+		//*TIMER1_CMD = 1;
 		*DAC0_CH0CTRL = 1;
 		*DAC0_CH1CTRL = 1;
 
@@ -92,7 +92,7 @@ void ButtonHandler()
 	}
 	else if (GPIO_pollPin(GPIO_portC, 7))
 	{
-		*TIMER1_CMD = 1;
+		//*TIMER1_CMD = 1;
 		*DAC0_CH0CTRL = 1;
 		*DAC0_CH1CTRL = 1;
 
