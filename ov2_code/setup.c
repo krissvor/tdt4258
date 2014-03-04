@@ -13,7 +13,7 @@ void setupGPIO()
 	NVIC_IRQenable(IRQ_GPIO_EVEN, true);
 	NVIC_IRQenable(IRQ_GPIO_ODD, true);
 	CMU_periClockEnable(CMU_GPIO, true);
-	GPIO_IRQsetupRange(GPIO_portC, 0, 7, true, true, true);
+	GPIO_IRQsetupRange(GPIO_portC, 0, 7, false, true, true);
 
 	GPIO_portSetupRange(GPIO_portA, 8, 15, GPIO_PUSHPULLDRIVE);
 	GPIO_driveStrength(GPIO_portA, GPIO_HIGH);
@@ -21,6 +21,8 @@ void setupGPIO()
 
 	GPIO_portSetupRange(GPIO_portC, 0, 7, GPIO_INPUTPULLFILTER);
 	*GPIO_PC_DOUT = 0xFF;
+
+	GPIO_clearAllInterrupts();
 
 }
 
@@ -31,8 +33,10 @@ void setupTimer(uint16_t period)
 	NVIC_IRQenable(IRQ_TIMER1, true);
 	CMU_periClockEnable(CMU_TIMER1, true);
 
-	*TIMER1_TOP = period;
+	*TIMER1_CMD = 2;
 	*TIMER1_IEN = 1;
+	*TIMER1_IFC = 1;
+	*TIMER1_TOP = period;
 	//*TIMER1_CMD = 1;
 }
 

@@ -18,87 +18,91 @@ static sound_t current_sound;
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler() 
 {
-  *TIMER1_IFC = 1;
+	*TIMER1_IFC = 1;
+	*GPIO_PA_DOUT = 0x0;
+	//*DAC0_CH0CTRL = 1;
+	//*DAC0_CH1CTRL = 1;
 
-  if (playing) 
-    {
-      if (sample_idx % current_sound.note_duration == 0)
-        {
-          sample_idx = 0;
-          note_idx++;
-	  if (note_idx < current_sound.note_count)
-            {
-	      square1_play_note(current_sound.sq1_notes[note_idx]);
-	      square2_play_note(current_sound.sq2_notes[note_idx]);
-	      triangle_play_note(current_sound.tri_notes[note_idx]);
-	      noise_play(current_sound.noise_notes[note_idx]);
-            } 
-          else
-            {
-              playing = 0;
-              *TIMER1_CMD = 2;
-              *DAC0_CH0CTRL = 0;
-              *DAC0_CH1CTRL = 0;
-            }
-       }
-      sample = get_sample();
-      sample_idx++;
-      *DAC0_CH0DATA = sample;
-      *DAC0_CH1DATA = sample;
-    }
-  else 
-    {
-      //*GPIO_PA_DOUT = 0xFF00;
-      *DAC0_CH0DATA = 0;
-      *DAC0_CH1DATA = 0;
-    }
+	if (playing)
+	{
+		if (sample_idx % current_sound.note_duration == 0)
+		{
+			sample_idx = 0;
+			note_idx++;
+			if (note_idx < current_sound.note_count)
+			{
+				square1_play_note(current_sound.sq1_notes[note_idx]);
+				square2_play_note(current_sound.sq2_notes[note_idx]);
+				triangle_play_note(current_sound.tri_notes[note_idx]);
+				noise_play(current_sound.noise_notes[note_idx]);
+			}
+			else
+			{
+				playing = 0;
+				*TIMER1_CMD = 2;
+				*DAC0_CH0CTRL = 0;
+				*DAC0_CH1CTRL = 0;
+			}
+		}
+		sample = get_sample();
+		sample_idx++;
+		*DAC0_CH0DATA = sample;
+		*DAC0_CH1DATA = sample;
+	}
+	else
+	{
+		//*GPIO_PA_DOUT = 0xFF00;
+		*DAC0_CH0DATA = 0;
+		*DAC0_CH1DATA = 0;
+	}
+
+	//*DAC0_CH0CTRL = 0;
+	//*DAC0_CH1CTRL = 0;
 }
 
 
 /* GPIO even pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler() 
 {
-  ButtonHandler();
+	ButtonHandler();
 }
 
 
 /* GPIO odd pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler() 
 {
-  ButtonHandler();
+	ButtonHandler();
 }
 
 
 void ButtonHandler() 
 {
-  GPIO_clearAllInterrupts();
-  *GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
-  if (GPIO_pollPin(GPIO_portC, 6))
-    {
-	  *TIMER1_CMD = 1;
-	  *DAC0_CH0CTRL = 1;
-	  *DAC0_CH1CTRL = 1;
+	GPIO_clearAllInterrupts();
+	*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
+	if (GPIO_pollPin(GPIO_portC, 6))
+	{
+		*TIMER1_CMD = 1;
+		*DAC0_CH0CTRL = 1;
+		*DAC0_CH1CTRL = 1;
 
-      current_sound = cannon;
-      playing = 1;
-      note_idx = -1;
-      sample_idx = 0;
-    }
-  else if (GPIO_pollPin(GPIO_portC, 7))
-    {
-	  *TIMER1_CMD = 1;
-	  *DAC0_CH0CTRL = 1;
-	  *DAC0_CH1CTRL = 1;
+		current_sound = cannon;
+		playing = 1;
+		note_idx = -1;
+		sample_idx = 0;
+	}
+	else if (GPIO_pollPin(GPIO_portC, 7))
+	{
+		*TIMER1_CMD = 1;
+		*DAC0_CH0CTRL = 1;
+		*DAC0_CH1CTRL = 1;
 
-      current_sound = coin;
-      playing = 1;
-      note_idx = -1;
-      sample_idx = 0;
-    }
-  else
-    {
+		current_sound = coin;
+		playing = 1;
+		note_idx = -1;
+		sample_idx = 0;
+	}
+	GPIO_clearAllInterrupts();
 
-    }
 }
 
 
@@ -156,7 +160,7 @@ void ButtonHandler()
    AES_IRQHandler
    EBI_IRQHandler
    EMU_IRQHandler
-*/
+ */
 
 
 
