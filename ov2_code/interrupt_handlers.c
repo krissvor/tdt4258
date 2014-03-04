@@ -20,8 +20,6 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
 	*TIMER1_IFC = 1;
 	*GPIO_PA_DOUT = 0x0;
-	//*DAC0_CH0CTRL = 1;
-	//*DAC0_CH1CTRL = 1;
 
 	if (playing)
 	{
@@ -38,10 +36,12 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 			}
 			else
 			{
+				*GPIO_PA_DOUT = 0xFF00;
 				playing = 0;
-				//*TIMER1_CMD = 2;
+				*TIMER1_CMD = 2;
 				*DAC0_CH0CTRL = 0;
 				*DAC0_CH1CTRL = 0;
+				*SCR = 0b0110;
 			}
 		}
 		sample = get_sample();
@@ -51,13 +51,10 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	}
 	else
 	{
-		//*GPIO_PA_DOUT = 0xFF00;
 		*DAC0_CH0DATA = 0;
 		*DAC0_CH1DATA = 0;
 	}
 
-	//*DAC0_CH0CTRL = 0;
-	//*DAC0_CH1CTRL = 0;
 }
 
 
@@ -81,7 +78,8 @@ void ButtonHandler()
 	*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
 	if (GPIO_pollPin(GPIO_portC, 6))
 	{
-		//*TIMER1_CMD = 1;
+		*SCR = 0b0100;
+		*TIMER1_CMD = 1;
 		*DAC0_CH0CTRL = 1;
 		*DAC0_CH1CTRL = 1;
 
@@ -92,7 +90,8 @@ void ButtonHandler()
 	}
 	else if (GPIO_pollPin(GPIO_portC, 7))
 	{
-		//*TIMER1_CMD = 1;
+		*SCR = 0b0100;
+		*TIMER1_CMD = 1;
 		*DAC0_CH0CTRL = 1;
 		*DAC0_CH1CTRL = 1;
 
@@ -101,8 +100,30 @@ void ButtonHandler()
 		note_idx = -1;
 		sample_idx = 0;
 	}
-	GPIO_clearAllInterrupts();
+	else if (GPIO_pollPin(GPIO_portC, 5))
+	{
+		*SCR = 0b0100;
+		*TIMER1_CMD = 1;
+		*DAC0_CH0CTRL = 1;
+		*DAC0_CH1CTRL = 1;
 
+		current_sound = k_chip_tune;
+		playing = 1;
+		note_idx = -1;
+		sample_idx = 0;
+	}
+	else if (GPIO_pollPin(GPIO_portC, 4))
+	{
+		*SCR = 0b0100;
+		*TIMER1_CMD = 1;
+		*DAC0_CH0CTRL = 1;
+		*DAC0_CH1CTRL = 1;
+
+		current_sound = test;
+		playing = 1;
+		note_idx = -1;
+		sample_idx = 0;
+	}
 }
 
 

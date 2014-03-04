@@ -15,5 +15,7 @@ typedef struct
 
 extern sound_t cannon;
 extern sound_t coin;
+extern sound_t k_chip_tune;
+extern sound_t test;
 
 #endif
