@@ -149,7 +149,7 @@ uint32_t GPIO_pollPort(GPIO_Port portnr) {
 }
 
 
-/* Check if the specified pin is active. Assuming active low */
+/* Check if the specified pin is active. Be aware that this assumes the pin is active low */
 bool GPIO_pollPin(GPIO_Port portnr, unsigned int pinnr) {
 	volatile uint32_t* adressDIN = (volatile uint32_t*)((GPIO_BASE + portnr * GPIO_PORT_SIZE) + GPIO_DIN_OFFSET);
 

@@ -23,12 +23,13 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 
 	if (playing)
 	{
-		if (sample_idx % current_sound.note_duration == 0)
+		if (sample_idx % current_sound.note_duration == 0) // Check if sample is done
 		{
 			sample_idx = 0;
 			note_idx++;
-			if (note_idx < current_sound.note_count)
+			if (note_idx < current_sound.note_count) // Check if there are more notes to play
 			{
+				// Prepare next note
 				square1_play_note(current_sound.sq1_notes[note_idx]);
 				square2_play_note(current_sound.sq2_notes[note_idx]);
 				triangle_play_note(current_sound.tri_notes[note_idx]);
@@ -36,6 +37,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 			}
 			else
 			{
+				// Disable stuff and go back to sleep
 				*GPIO_PA_DOUT = 0xFF00;
 				playing = 0;
 				*TIMER1_CMD = 2;
@@ -44,6 +46,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 				*SCR = 0b0110;
 			}
 		}
+		// Get next sample and write do DAC
 		sample = get_sample();
 		sample_idx++;
 		*DAC0_CH0DATA = sample;
@@ -72,11 +75,12 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 }
 
 
+/* Since we don't care if buttons are odd or even, everything is handled here */
 void ButtonHandler() 
 {
 	GPIO_clearAllInterrupts();
 	*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
-	if (GPIO_pollPin(GPIO_portC, 6))
+	if (GPIO_pollPin(GPIO_portC, 6)) // Check if button 7 is pushed
 	{
 		*SCR = 0b0100;
 		*TIMER1_CMD = 1;
@@ -88,7 +92,7 @@ void ButtonHandler()
 		note_idx = -1;
 		sample_idx = 0;
 	}
-	else if (GPIO_pollPin(GPIO_portC, 7))
+	else if (GPIO_pollPin(GPIO_portC, 7)) // Check if button 8 is pushed
 	{
 		*SCR = 0b0100;
 		*TIMER1_CMD = 1;
@@ -100,7 +104,7 @@ void ButtonHandler()
 		note_idx = -1;
 		sample_idx = 0;
 	}
-	else if (GPIO_pollPin(GPIO_portC, 5))
+	else if (GPIO_pollPin(GPIO_portC, 5)) // Check if button 6 is pushed
 	{
 		*SCR = 0b0100;
 		*TIMER1_CMD = 1;
@@ -112,7 +116,7 @@ void ButtonHandler()
 		note_idx = -1;
 		sample_idx = 0;
 	}
-	else if (GPIO_pollPin(GPIO_portC, 4))
+	else if (GPIO_pollPin(GPIO_portC, 4)) // Check if button 5 is pushed
 	{
 		*SCR = 0b0100;
 		*TIMER1_CMD = 1;

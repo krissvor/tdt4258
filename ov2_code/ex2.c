@@ -24,7 +24,7 @@ int main(void)
 
 
 	/*
-	 * Sleep while waiting for interrupts
+	 * Deep sleep while waiting for interrupts
 	 */
 	*SCR = 6; //0110
 	__asm volatile ("wfi");

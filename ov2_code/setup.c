@@ -19,7 +19,7 @@ void setupGPIO()
 
 	// Button setup
 	GPIO_portSetupRange(GPIO_portC, 0, 7, GPIO_INPUTPULLFILTER);
-	*GPIO_PC_DOUT = 0xFF;
+	*GPIO_PC_DOUT = 0xFF; // pull-up
 
 	NVIC_IRQenable(IRQ_GPIO_EVEN, true);
 	NVIC_IRQenable(IRQ_GPIO_ODD, true);
@@ -53,7 +53,7 @@ void setupDAC()
 
 	CMU_periClockEnable(CMU_DAC0, true);
 
-	*DAC0_CTRL = 0x50014; //50014?
+	*DAC0_CTRL = 0x50010; //50014?
 	//*DAC0_CH0CTRL = 1;
 	//*DAC0_CH1CTRL = 1;
 }
