@@ -3,15 +3,27 @@
 
 #include <linux/fb.h>
 
-
+#define SCREENW 320
+#define SCREENH 240
 
 struct fb_copyarea rect;
 int fbfd;
-uint32_t *fbMap;
+uint16_t *fbMap;
+
+struct sprite {
+	int w;
+	int h;
+	uint16_t a[];
+};
 
 void setupFB();
+void paintSprite(struct sprite *s, int posX, int posY);
 void paintRect(int dx, int dy, int width, int height);
 
 
 
+
+
+
 #endif
+

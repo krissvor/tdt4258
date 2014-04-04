@@ -14,10 +14,13 @@
  *
  * Returns 0 if successfull, otherwise -1
  */
-
 static int __init template_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
+	
+	//request_irq();
+	
+	
 	return 0;
 }
 
@@ -27,7 +30,6 @@ static int __init template_init(void)
  * This is the second of two exported functions to handle cleanup this
  * code from a running kernel
  */
-
 static void __exit template_cleanup(void)
 {
 	 printk("Short life for a small module...\n");
