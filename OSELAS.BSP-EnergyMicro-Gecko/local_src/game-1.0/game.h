@@ -6,6 +6,17 @@
 #define SCREENW 320
 #define SCREENH 240
 
+enum color {
+	BLACK = 0x0,
+	WHITE = 0xffff,
+	RED = 31 << 11,
+	GREEN = 63 << 5,
+	BLUE = 31,
+	CYAN = 63 << 5 | 31,
+	MAGENTA = 31 << 11 | 31,
+	YELLOW = 31 << 11 | 63 << 5,
+};
+
 struct fb_copyarea rect;
 int fbfd;
 uint16_t *fbMap;
