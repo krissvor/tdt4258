@@ -2,12 +2,12 @@
 #define _GAME_H
 
 #include <linux/fb.h>
+#include <stdint.h>
 
 #define SCREENW 320
 #define SCREENH 240
-#define FRAME_LIMITER 30
-#define FRAME_TIME_NANOS 1000000000/30
-#define SHIP_SPEED 5
+#define FRAME_LIMITER 35
+#define FRAME_TIME_NANOS 1000000000 / FRAME_LIMITER
 
 enum color {
 	BL = 0x0,					//black
@@ -19,6 +19,7 @@ enum color {
 	MA = 31 << 11 | 31,			//magenta
 	YE = 31 << 11 | 63 << 5,	//yellow
 	DG = 63/2 << 5,				//dark green
+	GY = 31/2 << 11 | 63/2 << 5 | 31/2	//gray
 };
 
 struct fb_copyarea rect;
@@ -28,16 +29,24 @@ int drfd;
 char buttons[8];
 
 struct sprite {
+	int x;
+	int y;
+	int dir;
+	int speed;
 	int w;
 	int h;
 	uint16_t a[];
 };
 
+struct sprite spaceship;
+struct sprite enemyBorg;
+
 void setupFB();
 void setupDriver();
 void blankScreen();
-void paintSprite(struct sprite *s, int posX, int posY);
+void paintSprite(struct sprite *s);
 void paintRect(int dx, int dy, int width, int height);
+void moveEnemy();
 
 
 

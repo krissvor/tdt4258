@@ -3,48 +3,18 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "game.h"
 
-
+/*
 #include <linux/fb.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
-
-
-
-struct sprite spaceship = {
-	.w = 26,
-	.h = 21,
-	.a = {
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,GR,GR,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,GR,GR,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,GR,GR,GR,GR,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,GR,GR,GR,GR,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,YE,BL,BL,BL,BL,BL,GR,GR,GR,GR,GR,GR,BL,BL,BL,BL,BL,YE,BL,BL,BL,BL,
-		BL,BL,BL,GR,GR,BL,BL,BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,BL,BL,GR,GR,BL,BL,BL,
-		BL,BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,BL,
-		BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,GR,GR,WH,WH,WH,GR,GR,GR,GR,WH,WH,WH,GR,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,GR,WH,RE,RE,RE,WH,GR,GR,WH,RE,RE,RE,WH,GR,GR,GR,GR,GR,GR,BL,
-		BL,GR,GR,GR,GR,GR,WH,RE,RE,RE,RE,RE,GR,GR,RE,RE,RE,RE,RE,WH,GR,GR,GR,GR,GR,BL,
-		BL,BL,BL,GR,GR,WH,RE,RE,RE,RE,RE,RE,WH,WH,RE,RE,RE,RE,RE,RE,WH,GR,GR,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,RE,RE,RE,RE,RE,BL,BL,RE,RE,RE,RE,RE,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,RE,RE,RE,BL,BL,BL,BL,RE,RE,RE,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,RE,RE,RE,BL,BL,BL,BL,RE,RE,RE,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,RE,BL,BL,BL,BL,BL,BL,RE,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-		BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,BL,
-	}
-};
-
-
+*/
 
 
 int main(int argc, char *argv[])
@@ -55,10 +25,11 @@ int main(int argc, char *argv[])
 	printf("FB mapped to: %p\n", fbMap);
 	setupDriver();
 	blankScreen();
+	srand(time(NULL));
 	
-	int posX = SCREENW/2-spaceship.w/2;
-	int posY = SCREENH/2-spaceship.h/2;
-	paintSprite(&spaceship, posX, posY);
+	spaceship.x = SCREENW/2-spaceship.w/2;
+	spaceship.y = SCREENH/2-spaceship.h/2;
+	paintSprite(&spaceship);
 	
 	struct timespec systemTime;
 	struct timespec sleepTime;
@@ -70,27 +41,34 @@ int main(int argc, char *argv[])
 	int count = 0;
 	int totalFrames = 0;
 	int flag = 0;
+	
+	int moreThan = 0;
+	int lessThan = 0;
+	
 	clock_gettime(CLOCK_MONOTONIC, &systemTime);
 	timeNanos = systemTime.tv_nsec;
 	printf("System time: %d sec %d nanos\n", systemTime.tv_sec, timeNanos);
 	while (play) {
 		ssize_t err = read(drfd, buttons, 8);
 		//printf("read() returned: %i\n", err);
-		if (buttons[0] && posX > 0) posX -= SHIP_SPEED;
-		if (buttons[1] && posY > 0) posY -= SHIP_SPEED;
-		if (buttons[2] && posX < SCREENW-spaceship.w) posX += SHIP_SPEED;
-		if (buttons[3] && posY < SCREENH-1-spaceship.h) posY += SHIP_SPEED;
+		if (buttons[0] && spaceship.x > 0) spaceship.x -= spaceship.speed;
+		if (buttons[1] && spaceship.y > 0) spaceship.y -= spaceship.speed;
+		if (buttons[2] && spaceship.x < SCREENW-spaceship.w) spaceship.x += spaceship.speed;
+		if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h) spaceship.y += spaceship.speed;
 		if (buttons[6]) play = 0;
-		paintSprite(&spaceship, posX, posY);
+		paintSprite(&spaceship);
 		
+		moveEnemy(&enemyBorg);
+		
+		//totalFrames++;
 		count++;
 		if (systemTime.tv_nsec > 900000000) {
 			if (!flag) {
-				printf("FPS: %i\n", count);
+				printf("FPS: %i    Last sleeptime: %i\nLess than: %i    More than: %i\n",
+					count, sleepTime.tv_nsec, lessThan, moreThan);
 				totalFrames += count;
 				count = 0;
 				flag = 1;
-				//timeNanos = systemTime.tv_nsec;
 			}
 		} else if (flag) {
 			flag = 0;
@@ -98,8 +76,19 @@ int main(int argc, char *argv[])
 		
 		timeNanos = systemTime.tv_nsec;
 		clock_gettime(CLOCK_MONOTONIC, &systemTime);
+		
+		if (systemTime.tv_nsec > timeNanos) {
+			elapsedTime = systemTime.tv_nsec - timeNanos;
+			moreThan++;
+		} else {
+			elapsedTime = 1000000000 - timeNanos + systemTime.tv_nsec;
+			lessThan++;
+		}
+		
+		/*
 		elapsedTime = systemTime.tv_nsec - timeNanos;
 		if (elapsedTime < 0) elapsedTime += 1000000000;
+		*/
 		sleepTime.tv_nsec = FRAME_TIME_NANOS - elapsedTime;
 		int ret = nanosleep(&sleepTime, NULL);
 		clock_gettime(CLOCK_MONOTONIC, &systemTime);
@@ -116,53 +105,53 @@ int main(int argc, char *argv[])
 }
 
 
-void blankScreen() {
-	int i;
-	uint16_t *tempfbmap = fbMap;
-	printf("Blank screen\n");
-	for (i = 0; i < SCREENW*SCREENH; i++) { // Blank screen
-		*tempfbmap = BL;
-		tempfbmap++;
+void moveEnemy(struct sprite *s) {
+	paintSprite(s);
+	
+	s->dir += rand() % 3 - 1;
+	
+	switch(s->dir) {
+		case 8: s->dir = 0;
+		case 0:
+			if (s->x < SCREENW - s->w) s->x += s->speed;
+			break;
+		case 1:
+			if (s->x < SCREENW - s->w) s->x += s->speed;
+			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			break;
+		case 2:
+			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			break;
+		case 3:
+			if (s->x > 0) s->x -= s->speed;
+			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			break;
+		case 4:
+			if (s->x > 0) s->x -= s->speed;
+			break;
+		case 5:
+			if (s->x > 0) s->x -= s->speed;
+			if (s->y > 0) s->y -= s->speed;
+			break;
+		case 6:
+			if (s->y > 0) s->y -= s->speed;
+			break;
+		case -1: s->dir = 7;
+		case 7:
+			if (s->x < SCREENW - s->w) s->x += s->speed;
+			if (s->y > 0) s->y -= s->speed;
+			break;
 	}
-	paintRect(0, 0, SCREENW, SCREENH);
 }
 
-void paintSprite(struct sprite *s, int posX, int posY) {
-	uint16_t *tempfbmap = fbMap;
-	tempfbmap += SCREENW * posY + posX;
-	//printf("Draw sprite\n");
-	int j;
-	int i;
-	for (j = 0; j < s->h; j++) {
-		for (i = j*s->w; i < j*s->w+s->w; i++) {
-			*tempfbmap = s->a[i];
-			tempfbmap++;
-		}
-		tempfbmap += SCREENW - s->w;
-	}
-	paintRect(posX, posY, s->w, s->h+1);
-}
-
-void setupFB() {
-	fbfd = open("/dev/fb0", O_RDWR);
-	printf("Framebuffer fd: %i\n", fbfd);
-	if (fbfd < 0) printf("Error opening FB\n");
-	fbMap = (uint16_t*)mmap(NULL, 320*240*2, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-}
 
 void setupDriver() {
 	drfd = open("/dev/GPIO_buttons", O_RDONLY);
 	printf("Driver fd: %i\n", drfd);
 }
 
-void paintRect(int dx, int dy, int width, int height) {
- 	rect.dx = dx;
-	rect.dy = dy;
-	rect.width = width;
-	rect.height = height;
-	
-	ioctl(fbfd, 0x4680, &rect);
-}
+
+
 
 
 

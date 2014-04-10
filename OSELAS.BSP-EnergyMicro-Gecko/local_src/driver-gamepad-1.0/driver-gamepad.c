@@ -143,7 +143,7 @@ irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
 	for (i = 0; i < 8; i++) {
 		buttons[i] = ~(*GPIO_PC_DIN | ~(1 << i)) != 0;
 	}
-	printk(KERN_DEBUG "Button state is %x\n", ~(*GPIO_PC_DIN));
+	//printk(KERN_DEBUG "Button state is %x\n", ~(*GPIO_PC_DIN));
 	
 	return IRQ_HANDLED;
 }

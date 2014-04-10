@@ -13,6 +13,8 @@ LDFLAGS +=
 
 all: game
 
+game: painter.o sprites.o
+
 clean:
 	-rm -f game
 
