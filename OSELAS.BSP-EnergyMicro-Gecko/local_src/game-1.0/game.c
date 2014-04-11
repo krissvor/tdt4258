@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	int count = 0;
 	int totalFrames = 0;
 	int flag = 0;
+	int shotFired = 0;
 	
 	int moreThan = 0;
 	int lessThan = 0;
@@ -51,14 +52,28 @@ int main(int argc, char *argv[])
 	while (play) {
 		ssize_t err = read(drfd, buttons, 8);
 		//printf("read() returned: %i\n", err);
-		if (buttons[0] && spaceship.x > 0) spaceship.x -= spaceship.speed;
-		if (buttons[1] && spaceship.y > 0) spaceship.y -= spaceship.speed;
-		if (buttons[2] && spaceship.x < SCREENW-spaceship.w) spaceship.x += spaceship.speed;
-		if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h) spaceship.y += spaceship.speed;
+		blankSprite(&spaceship);
+		if (buttons[0] && spaceship.x > spaceship.pad) spaceship.x -= spaceship.speed;
+		if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
+		if (buttons[2] && spaceship.x < SCREENW-spaceship.w-spaceship.pad) spaceship.x += spaceship.speed;
+		if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h-spaceship.pad) spaceship.y += spaceship.speed;
 		if (buttons[6]) play = 0;
 		paintSprite(&spaceship);
 		
 		moveEnemy(&enemyBorg);
+		
+		if (checkCollision(&spaceship, &enemyBorg)) play = 0;
+		
+		if (buttons[7] && ! shotFired) {
+			shotFired = 1;
+			shot.x = spaceship.x + spaceship.w/2 - shot.w/2;
+			shot.y = spaceship.y;
+		}
+		
+		if (shotFired) {
+			moveShot(&shot, &shotFired);
+			if (checkCollision(&shot, &enemyBorg)) play = 0;
+		}
 		
 		//totalFrames++;
 		count++;
@@ -106,48 +121,72 @@ int main(int argc, char *argv[])
 
 
 void moveEnemy(struct sprite *s) {
-	paintSprite(s);
+	blankSprite(s);
 	
 	s->dir += rand() % 3 - 1;
 	
 	switch(s->dir) {
 		case 8: s->dir = 0;
 		case 0:
-			if (s->x < SCREENW - s->w) s->x += s->speed;
+			if (s->x < SCREENW - s->w - s->pad) s->x += s->speed;
 			break;
 		case 1:
-			if (s->x < SCREENW - s->w) s->x += s->speed;
-			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			if (s->x < SCREENW - s->w - s->pad) s->x += s->speed;
+			if (s->y < SCREENH - 1 - s->h - s->pad) s->y += s->speed;
 			break;
 		case 2:
-			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			if (s->y < SCREENH - 1 - s->h - s->pad) s->y += s->speed;
 			break;
 		case 3:
-			if (s->x > 0) s->x -= s->speed;
-			if (s->y < SCREENH - 1 - s->h) s->y += s->speed;
+			if (s->x > s->pad) s->x -= s->speed;
+			if (s->y < SCREENH - 1 - s->h - s->pad) s->y += s->speed;
 			break;
 		case 4:
-			if (s->x > 0) s->x -= s->speed;
+			if (s->x > s->pad) s->x -= s->speed;
 			break;
 		case 5:
-			if (s->x > 0) s->x -= s->speed;
-			if (s->y > 0) s->y -= s->speed;
+			if (s->x > s->pad) s->x -= s->speed;
+			if (s->y > s->pad) s->y -= s->speed;
 			break;
 		case 6:
-			if (s->y > 0) s->y -= s->speed;
+			if (s->y > s->pad) s->y -= s->speed;
 			break;
 		case -1: s->dir = 7;
 		case 7:
-			if (s->x < SCREENW - s->w) s->x += s->speed;
-			if (s->y > 0) s->y -= s->speed;
+			if (s->x < SCREENW - s->w - s->pad) s->x += s->speed;
+			if (s->y > s->pad) s->y -= s->speed;
 			break;
 	}
+	paintSprite(s);
 }
 
 
 void setupDriver() {
 	drfd = open("/dev/GPIO_buttons", O_RDONLY);
 	printf("Driver fd: %i\n", drfd);
+}
+
+
+void moveShot(struct sprite *s, int *fired) {
+	blankSprite(s);
+	
+	if (s->y > s->pad) {
+		s->y -= s->speed;
+		paintSprite(s);
+	} else {
+		*fired = 0;
+		paintRect(s->x, s->y, s->w, s->h+1);
+	}
+}
+
+
+int checkCollision(struct sprite *a, struct sprite *b) {
+	if (a->x + a->w >= b->x &&
+		a->x <= b->x + b->w &&
+		a->y + a->h >= b->y &&
+		a->y <= b->y + b->h) return 1;
+	
+	return 0;
 }
 
 

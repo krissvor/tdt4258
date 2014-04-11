@@ -16,7 +16,7 @@ all: game
 game: painter.o sprites.o
 
 clean:
-	-rm -f game
+	-rm -f game *.o
 
 install:
 

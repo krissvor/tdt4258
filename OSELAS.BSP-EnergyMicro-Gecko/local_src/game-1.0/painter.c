@@ -56,8 +56,27 @@ void paintSprite(struct sprite *s) {
 		}
 		tempfbmap += SCREENW - s->w;
 	}
-	paintRect(s->x, s->y, s->w, s->h+1);
+	paintRect(s->x - s->speed, s->y - s->speed, s->w + s->speed * 2, s->h+1 + s->speed * 2);
 }
+
+
+void blankSprite(struct sprite *s) {
+	uint16_t *tempfbmap = fbMap;
+	tempfbmap += SCREENW * s->y + s->x;
+	int j;
+	int i;
+	for (j = 0; j < s->h; j++) {
+		for (i = 0; i < s->w; i++) {
+			*tempfbmap = BL;
+			tempfbmap++;
+		}
+		tempfbmap += SCREENW - s->w;
+	}
+}
+
+
+
+
 
 
 

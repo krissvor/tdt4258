@@ -33,20 +33,25 @@ struct sprite {
 	int y;
 	int dir;
 	int speed;
+	int pad; // 2 * speed - 1
 	int w;
 	int h;
-	uint16_t a[];
+	uint16_t *a;
 };
 
 struct sprite spaceship;
 struct sprite enemyBorg;
+struct sprite shot;
 
 void setupFB();
 void setupDriver();
 void blankScreen();
 void paintSprite(struct sprite *s);
+void blankSprite(struct sprite *s);
 void paintRect(int dx, int dy, int width, int height);
 void moveEnemy();
+void moveShot(struct sprite *s, int *fired);
+int checkCollision(struct sprite *a, struct sprite *b);
 
 
 
