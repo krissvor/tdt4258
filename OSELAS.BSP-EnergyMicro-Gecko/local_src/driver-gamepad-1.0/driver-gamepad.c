@@ -1,5 +1,5 @@
 /*
- * This is a demo Linux kernel module.
+ * This is a gamepad driver Linux kernel module.
  */
 
 #include <linux/kernel.h>
@@ -18,7 +18,6 @@
 #include "driver-gamepad.h"
 
 
-//int majorDevNum = 17;
 dev_t deviceNum;
 unsigned int deviceCount = 1;
 struct cdev *buttons_cdev;
@@ -46,10 +45,8 @@ static int __init gamepad_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
 	
-	//deviceNum = MKDEV(majorDevNum, 0);
 	int err = alloc_chrdev_region(&deviceNum, 0, deviceCount, "GPIO_buttons");
 	if (err < 0) printk(KERN_ERR "Failed to allocate chrdev region.\n");
-	//int err = register_chrdev_region(deviceNum, deviceCount, "GPIO_buttons");
 	cl = class_create(THIS_MODULE, "GPIO_buttons");
 	device_create(cl, NULL, deviceNum, NULL, "GPIO_buttons");
 	
@@ -59,7 +56,11 @@ static int __init gamepad_init(void)
 	if (GPIO_resource == 0) printk(KERN_ERR "GPIO memory region request failed\n");
 	
 	gpio_mem = ioremap_nocache(GPIO_PA_BASE+0x100, 0x20);
+	printk(KERN_DEBUG "gpio_mem addr: %p\n", gpio_mem);
+	if (gpio_mem == NULL) printk(KERN_ERR "GPIO remap failed\n");
 	portc_mem = ioremap_nocache(GPIO_PC_BASE, 0x24);
+	printk(KERN_DEBUG "portc_mem addr: %p\n", portc_mem);
+	if (portc_mem == NULL) printk(KERN_ERR "GPIO port c remap failed\n");
 
 /*
 	*GPIO_PC_MODEL = 0x33333333;
@@ -84,7 +85,6 @@ static int __init gamepad_init(void)
 	if (err < 0) printk(KERN_ERR "IRQ request 2 failed.\n");
 	
 	buttons_cdev = cdev_alloc();
-	//cdev_init(buttons_cdev, &fops);
 	buttons_cdev->owner = THIS_MODULE;
 	buttons_cdev->ops = &fops;
 	err = cdev_add(buttons_cdev, deviceNum, deviceCount);
@@ -103,29 +103,28 @@ static void __exit gamepad_cleanup(void)
 	printk("Short life for a small module...\n");
 	
 	cdev_del(buttons_cdev);
-	free_irq(1, NULL);
-	free_irq(0, NULL);
-/*	
-	*GPIO_PC_MODEL = 0x0;
-	*GPIO_PC_DOUT = 0x0;
-	*GPIO_EXTIPSELL = 0x0;
+	free_irq(17, NULL);
+	free_irq(18, NULL);
+/*
+	*GPIO_IEN = 0x0;
 	*GPIO_EXTIRISE = 0x0;
 	*GPIO_EXTIFALL = 0x0;
-	*GPIO_IEN = 0x0;
 */
-
-	iowrite32(0x33333333, portc_mem+GPIO_PC_MODEL);
-	iowrite32(0xff, portc_mem+GPIO_PC_DOUT);
-	iowrite32(0x22222222, gpio_mem+GPIO_EXTIPSELL);
-	iowrite32(0xff, gpio_mem+GPIO_EXTIRISE);
-	iowrite32(0xff, gpio_mem+GPIO_EXTIFALL);
-	iowrite32(0xff, gpio_mem+GPIO_IEN);
 	
+	iowrite32(0x0, gpio_mem+GPIO_IEN);
+	iowrite32(0x0, gpio_mem+GPIO_EXTIRISE);
+	iowrite32(0x0, gpio_mem+GPIO_EXTIFALL);
+	
+	printk(KERN_DEBUG "Unmap IO\n");
 	iounmap(gpio_mem);
-	iounmap(portc_mem);	
-	release_region(GPIO_PC_BASE, 0x24);
-	release_region(GPIO_PA_BASE + 0x100, 0x20);
-	//TODO device and class uncreate and stuff
+	iounmap(portc_mem);
+	printk(KERN_DEBUG "Release region\n");
+	release_mem_region(GPIO_PC_BASE, 0x24);
+	release_mem_region(GPIO_PA_BASE + 0x100, 0x20);
+	printk(KERN_DEBUG "Destroy device and class\n");
+	device_destroy(cl, deviceNum);
+	class_destroy(cl);
+	printk(KERN_DEBUG "Unregister char dev\n");
 	unregister_chrdev_region(deviceNum, deviceCount);
 }
 
@@ -164,13 +163,13 @@ int gamepad_mmap(struct file *filp, struct vm_area_struct *vmarea) {
 
 irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
 	//*GPIO_IFC = 0xFF; //clear irq flag
-	iowrite32(0xFF, gpio_mem+GPIO_IFC);
+	iowrite32(0xff, gpio_mem+GPIO_IFC);
 	int data = ioread32(portc_mem+GPIO_PC_DIN);
 	int i;
 	for (i = 0; i < 8; i++) {
 		buttons[i] = ~(data | ~(1 << i)) != 0;
 	}
-	//printk(KERN_DEBUG "Button state is %x\n", ~(*GPIO_PC_DIN));
+	//printk(KERN_DEBUG "Button state is %x\n", ~(data));
 	
 	return IRQ_HANDLED;
 }

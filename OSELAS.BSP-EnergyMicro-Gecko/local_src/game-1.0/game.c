@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	printf("System time: %d sec %d nanos\n", systemTime.tv_sec, timeNanos);
 	while (play) {
 		ssize_t err = read(drfd, buttons, 8);
-		//printf("read() returned: %i\n", err);
+		if (err) printf("Failed to read button status\n");
 		blankSprite(&spaceship);
 		if (buttons[0] && spaceship.x > spaceship.pad) spaceship.x -= spaceship.speed;
 		if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
