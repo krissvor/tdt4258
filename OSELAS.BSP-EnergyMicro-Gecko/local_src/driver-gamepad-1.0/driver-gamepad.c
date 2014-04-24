@@ -10,6 +10,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <asm/uaccess.h>
+#include <asm/io.h>
 #include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
@@ -22,6 +23,8 @@ dev_t deviceNum;
 unsigned int deviceCount = 1;
 struct cdev *buttons_cdev;
 struct class *cl;
+void __iomem *gpio_mem;
+void __iomem *portc_mem;
 
 char buttons[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -55,6 +58,10 @@ static int __init gamepad_init(void)
 	struct resource *GPIO_resource = request_mem_region(GPIO_PA_BASE + 0x100, 0x20, "GPIO");
 	if (GPIO_resource == 0) printk(KERN_ERR "GPIO memory region request failed\n");
 	
+	gpio_mem = ioremap_nocache(GPIO_PA_BASE+0x100, 0x20);
+	portc_mem = ioremap_nocache(GPIO_PC_BASE, 0x24);
+
+/*
 	*GPIO_PC_MODEL = 0x33333333;
 	*GPIO_PC_DOUT = 0xff;
 	
@@ -62,6 +69,14 @@ static int __init gamepad_init(void)
 	*GPIO_EXTIRISE = 0xff;
 	*GPIO_EXTIFALL = 0xff;
 	*GPIO_IEN = 0xff;
+*/
+
+	iowrite32(0x33333333, portc_mem+GPIO_PC_MODEL);
+	iowrite32(0xff, portc_mem+GPIO_PC_DOUT);
+	iowrite32(0x22222222, gpio_mem+GPIO_EXTIPSELL);
+	iowrite32(0xff, gpio_mem+GPIO_EXTIRISE);
+	iowrite32(0xff, gpio_mem+GPIO_EXTIFALL);
+	iowrite32(0xff, gpio_mem+GPIO_IEN);
 	
 	err = request_irq(17, interrupt_handler, 0, "GPIO_buttons", NULL);
 	if (err < 0) printk(KERN_ERR "IRQ request 1 failed.\n");
@@ -90,14 +105,24 @@ static void __exit gamepad_cleanup(void)
 	cdev_del(buttons_cdev);
 	free_irq(1, NULL);
 	free_irq(0, NULL);
-	
+/*	
 	*GPIO_PC_MODEL = 0x0;
 	*GPIO_PC_DOUT = 0x0;
 	*GPIO_EXTIPSELL = 0x0;
 	*GPIO_EXTIRISE = 0x0;
 	*GPIO_EXTIFALL = 0x0;
 	*GPIO_IEN = 0x0;
+*/
+
+	iowrite32(0x33333333, portc_mem+GPIO_PC_MODEL);
+	iowrite32(0xff, portc_mem+GPIO_PC_DOUT);
+	iowrite32(0x22222222, gpio_mem+GPIO_EXTIPSELL);
+	iowrite32(0xff, gpio_mem+GPIO_EXTIRISE);
+	iowrite32(0xff, gpio_mem+GPIO_EXTIFALL);
+	iowrite32(0xff, gpio_mem+GPIO_IEN);
 	
+	iounmap(gpio_mem);
+	iounmap(portc_mem);	
 	release_region(GPIO_PC_BASE, 0x24);
 	release_region(GPIO_PA_BASE + 0x100, 0x20);
 	//TODO device and class uncreate and stuff
@@ -138,10 +163,12 @@ int gamepad_mmap(struct file *filp, struct vm_area_struct *vmarea) {
 */
 
 irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
-	*GPIO_IFC = 0xFF; //clear irq flag
+	//*GPIO_IFC = 0xFF; //clear irq flag
+	iowrite32(0xFF, gpio_mem+GPIO_IFC);
+	int data = ioread32(portc_mem+GPIO_PC_DIN);
 	int i;
 	for (i = 0; i < 8; i++) {
-		buttons[i] = ~(*GPIO_PC_DIN | ~(1 << i)) != 0;
+		buttons[i] = ~(data | ~(1 << i)) != 0;
 	}
 	//printk(KERN_DEBUG "Button state is %x\n", ~(*GPIO_PC_DIN));
 	
