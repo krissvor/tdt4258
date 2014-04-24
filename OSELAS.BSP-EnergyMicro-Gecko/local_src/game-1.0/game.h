@@ -3,11 +3,12 @@
 
 #include <linux/fb.h>
 #include <stdint.h>
+#include <signal.h>
 
 #define SCREENW 320
 #define SCREENH 240
 #define FRAME_LIMITER 35
-#define FRAME_TIME_NANOS 1000000000 / FRAME_LIMITER
+#define FRAME_TIME_NANOS (long)(1000000000 / FRAME_LIMITER)
 
 enum color {
 	BL = 0x0,					//black
@@ -33,7 +34,7 @@ struct sprite {
 	int y;
 	int dir;
 	int speed;
-	int pad; // 2 * speed - 1
+	int pad; // Should be 2 * speed - 1
 	int w;
 	int h;
 	uint16_t *a;
@@ -52,6 +53,7 @@ void paintRect(int dx, int dy, int width, int height);
 void moveEnemy();
 void moveShot(struct sprite *s, int *fired);
 int checkCollision(struct sprite *a, struct sprite *b);
+//void gameLoop(union sigval sval);
 
 
 

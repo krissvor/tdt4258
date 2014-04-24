@@ -30,7 +30,7 @@ struct sprite spaceshipOld = {
 	.pad = 9,
 	.w = 24,
 	.h = 19,
-	.a = spaceshipPixels,
+	.a = spaceshipPixelsOld,
 };
 
 

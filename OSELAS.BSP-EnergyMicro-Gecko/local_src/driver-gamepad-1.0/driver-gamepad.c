@@ -50,9 +50,9 @@ static int __init gamepad_init(void)
 	cl = class_create(THIS_MODULE, "GPIO_buttons");
 	device_create(cl, NULL, deviceNum, NULL, "GPIO_buttons");
 	
-	struct resource *portC_resource = request_region(GPIO_PC_BASE, 0x24, "GPIO Port C");
+	struct resource *portC_resource = request_mem_region(GPIO_PC_BASE, 0x24, "GPIO Port C");
 	if (portC_resource == 0) printk(KERN_ERR "GPIO Port C memory region request failed\n");
-	struct resource *GPIO_resource = request_region(GPIO_PA_BASE + 0x100, 0x20, "GPIO");
+	struct resource *GPIO_resource = request_mem_region(GPIO_PA_BASE + 0x100, 0x20, "GPIO");
 	if (GPIO_resource == 0) printk(KERN_ERR "GPIO memory region request failed\n");
 	
 	*GPIO_PC_MODEL = 0x33333333;

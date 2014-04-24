@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <time.h>
+#include <signal.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -15,6 +16,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 */
+static void gameLoop(union sigval sval);
 
 
 int main(int argc, char *argv[])
@@ -25,18 +27,39 @@ int main(int argc, char *argv[])
 	printf("FB mapped to: %p\n", fbMap);
 	setupDriver();
 	blankScreen();
-	srand(time(NULL));
+	srand(time(0));
 	
 	spaceship.x = SCREENW/2-spaceship.w/2;
 	spaceship.y = SCREENH/2-spaceship.h/2;
 	paintSprite(&spaceship);
+	
+	/*
+	union sigval sval;
+	sval.sival_int = 1;
+	struct sigevent sigev;
+	sigev.sigev_notify = SIGEV_THREAD;
+	sigev.sigev_value = sval;
+	sigev.sigev_notify_function = gameLoop;
+	timer_t timerid;
+	timer_create(CLOCK_MONOTONIC, &sigev, &timerid);
+	struct timespec it_interval;
+	it_interval.tv_sec = 0;
+	it_interval.tv_nsec = FRAME_TIME_NANOS;
+	const struct itimerspec new_value = {
+		.it_interval = it_interval,
+		.it_value = it_interval,
+	};
+	printf("Frame time: %i\n", new_value.it_interval.tv_nsec);
+	timer_settime(timerid, 0, &new_value, NULL);
+	*/
+	
 	
 	struct timespec systemTime;
 	struct timespec sleepTime;
 	sleepTime.tv_sec = 0;
 	long timeNanos;
 	long elapsedTime;
-	time_t timeSeconds = time(NULL);
+	time_t timeSeconds = time(0);
 	int play = 1;
 	int count = 0;
 	int totalFrames = 0;
@@ -89,7 +112,7 @@ int main(int argc, char *argv[])
 			flag = 0;
 		}
 		
-		timeNanos = systemTime.tv_nsec;
+		
 		clock_gettime(CLOCK_MONOTONIC, &systemTime);
 		
 		if (systemTime.tv_nsec > timeNanos) {
@@ -100,23 +123,28 @@ int main(int argc, char *argv[])
 			lessThan++;
 		}
 		
-		/*
-		elapsedTime = systemTime.tv_nsec - timeNanos;
-		if (elapsedTime < 0) elapsedTime += 1000000000;
-		*/
 		sleepTime.tv_nsec = FRAME_TIME_NANOS - elapsedTime;
 		int ret = nanosleep(&sleepTime, NULL);
 		clock_gettime(CLOCK_MONOTONIC, &systemTime);
+		timeNanos = systemTime.tv_nsec;
 		if (ret != 0) printf("Sleep was interrupted: %i\n", ret);
 	}
 	
 	
-	printf("Average framerate: %i\n", totalFrames / (time(NULL) - timeSeconds));
+	printf("Average framerate: %i\n", totalFrames / (time(0) - timeSeconds));
+	
 	blankScreen();
 	munmap(fbMap, 320*240*2);
 	close(fbfd);
 	close(drfd);
+	
+	//pause();
 	exit(EXIT_SUCCESS);
+}
+
+
+static void gameLoop(union sigval sval) {
+	printf("loop de loop");
 }
 
 
