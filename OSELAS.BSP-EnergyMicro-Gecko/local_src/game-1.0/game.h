@@ -7,8 +7,8 @@
 
 #define SCREENW 320
 #define SCREENH 240
-#define FRAME_LIMITER 35
-#define FRAME_TIME_NANOS (long)(1000000000 / FRAME_LIMITER)
+#define FRAME_LIMITER 30
+#define FRAME_TIME_NANOS (1000000000 / FRAME_LIMITER)
 
 enum color {
 	BL = 0x0,					//black

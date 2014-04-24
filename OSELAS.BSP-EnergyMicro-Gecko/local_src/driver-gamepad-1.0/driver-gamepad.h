@@ -1,6 +1,6 @@
 
-#define GPIO_PA_BASE (unsigned int)0x40006000
-#define GPIO_PC_BASE (unsigned int)0x40006048
+#define GPIO_PA_BASE 0x40006000
+#define GPIO_PC_BASE 0x40006048
 
 #define GPIO_PC_CTRL     0x00
 #define GPIO_PC_MODEL    0x04
