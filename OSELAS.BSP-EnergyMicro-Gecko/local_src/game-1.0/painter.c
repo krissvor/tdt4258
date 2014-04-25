@@ -11,7 +11,7 @@
 
 
 
-
+/* Setup framebuffer */
 void setupFB() {
 	fbfd = open("/dev/fb0", O_RDWR);
 	printf("Framebuffer fd: %i\n", fbfd);
@@ -19,7 +19,7 @@ void setupFB() {
 	fbMap = (uint16_t*)mmap(NULL, 320*240*2, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 }
 
-
+/* Signal framebuffer driver to actually update screen */
 void paintRect(int dx, int dy, int width, int height) {
  	rect.dx = dx;
 	rect.dy = dy;
@@ -29,7 +29,7 @@ void paintRect(int dx, int dy, int width, int height) {
 	ioctl(fbfd, 0x4680, &rect);
 }
 
-
+/* Make screen go black */
 void blankScreen() {
 	int i;
 	uint16_t *tempfbmap = fbMap;
@@ -41,7 +41,7 @@ void blankScreen() {
 	paintRect(0, 0, SCREENW, SCREENH);
 }
 
-
+/* Paint a sprite on screen */
 void paintSprite(struct sprite *s) {
 	uint16_t *tempfbmap = fbMap;
 	tempfbmap += SCREENW * s->y + s->x;
@@ -56,10 +56,11 @@ void paintSprite(struct sprite *s) {
 		}
 		tempfbmap += SCREENW - s->w;
 	}
+	/* Pad with sprites speed to ensure updating the region the sprite came from */
 	paintRect(s->x - s->speed, s->y - s->speed, s->w + s->speed * 2, s->h+1 + s->speed * 2);
 }
 
-
+/* Paint a sprites current area black before moving it. This should not result in a call to ioctl */
 void blankSprite(struct sprite *s) {
 	uint16_t *tempfbmap = fbMap;
 	tempfbmap += SCREENW * s->y + s->x;

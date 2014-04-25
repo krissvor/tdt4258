@@ -18,8 +18,14 @@
 */
 static void gameLoop(int signum);
 
-int play = 1;
-int totalFrames = 0;
+/* Game states:
+	0 - Kepp playing
+	1 - Player lost
+	2 - Player victory
+	9 - Player quit
+*/
+int playState = 0;
+int totalFrames = 0; // Total frames displayed
 
 
 int main(int argc, char *argv[])
@@ -29,23 +35,19 @@ int main(int argc, char *argv[])
 	setupFB();
 	printf("FB mapped to: %p\n", fbMap);
 	setupDriver();
-	blankScreen();
+	blankScreen(); // Penguin go *poof* !
 	srand(time(0));
 	
+	/* Place player sprite in middle of screen */
 	spaceship.x = SCREENW/2-spaceship.w/2;
 	spaceship.y = SCREENH/2-spaceship.h/2;
 	paintSprite(&spaceship);
 	
-	
-	//union sigval sval;
-	//sval.sival_int = 1;
-	
-	struct sigevent sigev;
-	sigev.sigev_notify = SIGEV_SIGNAL;
-	//sigev.sigev_value = sval;
-	sigev.sigev_signo = SIGUSR1;
-	//sigev.sigev_notify_function = gameLoop;
-	
+	/* Setup Timer signaling */
+	struct sigevent sigev = {
+		.sigev_notify = SIGEV_SIGNAL,
+		.sigev_signo = SIGUSR1,
+	};
 	struct sigaction saction = {
 		.sa_handler = gameLoop,
 		.sa_flags = 0,
@@ -56,21 +58,23 @@ int main(int argc, char *argv[])
 	
 	timer_t timerid;
 	timer_create(CLOCK_MONOTONIC, &sigev, &timerid);
-	struct timespec it_interval;
-	it_interval.tv_sec = 0;
-	it_interval.tv_nsec = FRAME_TIME_NANOS;
+	struct timespec it_interval = {
+		.tv_sec = 0,
+		.tv_nsec = FRAME_TIME_NANOS,
+	};
 	const struct itimerspec new_value = {
 		.it_interval = it_interval,
 		.it_value = it_interval,
 	};
 	printf("Frame time: %i\n", new_value.it_interval.tv_nsec);
 	timer_settime(timerid, 0, &new_value, NULL);
-	
+	/* End timer setup */
 	
 	struct timespec systemTime;
 	clock_gettime(CLOCK_MONOTONIC, &systemTime);
 	printf("System time: %d sec %d nanos\n", systemTime.tv_sec, systemTime.tv_nsec);
-	time_t timeSeconds = time(0);
+	time_t timeSeconds = time(0); // Get start time to calculate average framerate
+	
 	/*
 	struct timespec sleepTime;
 	sleepTime.tv_sec = 0;
@@ -79,14 +83,14 @@ int main(int argc, char *argv[])
 	
 	int count = 0;
 	int totalFrames = 0;
-	int flag = 0;
+	int fpsPrintFlag = 0;
 	int shotFired = 0;
 	
 	int moreThan = 0;
 	int lessThan = 0;
 	
 	timeNanos = systemTime.tv_nsec;
-	while (play) {
+	while (!playState) {
 		ssize_t err = read(drfd, buttons, 8);
 		if (err) printf("Failed to read button status\n");
 		blankSprite(&spaceship);
@@ -94,12 +98,12 @@ int main(int argc, char *argv[])
 		if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
 		if (buttons[2] && spaceship.x < SCREENW-spaceship.w-spaceship.pad) spaceship.x += spaceship.speed;
 		if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h-spaceship.pad) spaceship.y += spaceship.speed;
-		if (buttons[6]) play = 0;
+		if (buttons[6]) playState = 9;
 		paintSprite(&spaceship);
 		
 		moveEnemy(&enemyBorg);
 		
-		if (checkCollision(&spaceship, &enemyBorg)) play = 0;
+		if (checkCollision(&spaceship, &enemyBorg)) playState = 1;
 		
 		if (buttons[7] && ! shotFired) {
 			shotFired = 1;
@@ -109,21 +113,21 @@ int main(int argc, char *argv[])
 		
 		if (shotFired) {
 			moveShot(&shot, &shotFired);
-			if (checkCollision(&shot, &enemyBorg)) play = 0;
+			if (checkCollision(&shot, &enemyBorg)) playState = 2;
 		}
 		
 		//totalFrames++;
 		count++;
 		if (systemTime.tv_nsec > 900000000) {
-			if (!flag) {
+			if (!fpsPrintFlag) {
 				printf("FPS: %i    Last sleeptime: %i\nLess than: %i    More than: %i\n",
 					count, sleepTime.tv_nsec, lessThan, moreThan);
 				totalFrames += count;
 				count = 0;
-				flag = 1;
+				fpsPrintFlag = 1;
 			}
-		} else if (flag) {
-			flag = 0;
+		} else if (fpsPrintFlag) {
+			fpsPrintFlag = 0;
 		}
 		
 		
@@ -145,10 +149,19 @@ int main(int argc, char *argv[])
 	}
 	*/
 	
-	while (play) pause();
+	sigset_t sigmask;
+	sigemptyset(&sigmask);
+	sigsuspend(&sigmask);
+	//while (!playState) pause(); // Pause after each timer signal
 	
-	blankScreen();
 	printf("Average framerate: %i\n", totalFrames / (time(0) - timeSeconds));
+	blankScreen();
+	switch (playState) {
+		case 1: printf("You loose! Game over!\n"); break;
+		case 2: printf("You Win! Game over!\n"); break;
+		case 9: printf("You quit! Game over!\n"); break;
+	}
+	
 	munmap(fbMap, 320*240*2);
 	close(fbfd);
 	close(drfd);
@@ -156,33 +169,34 @@ int main(int argc, char *argv[])
 }
 
 
+/* The main game loop that catches the timer signal */
 static void gameLoop(int signum) {
 	static long timeNanosOld;
 	static long sleepTime;
 	static struct timespec systemTime;
-	static int count = 0;
-	static int flag = 0;
+	static int count = 0; // Frame counter
+	static int fpsPrintFlag = 0; // 
 	static int shotFired = 0;
-	//printf("loop de loop\n");
 	clock_gettime(CLOCK_MONOTONIC, &systemTime);
 	sleepTime = systemTime.tv_nsec - timeNanosOld;
 	
 	
-	ssize_t err = read(drfd, buttons, 8);
+	ssize_t err = read(drfd, buttons, 8); // Poll driver for button status
 	if (err < 0) printf("Failed to read button status\n");
 	blankSprite(&spaceship);
+	/* Move player based on buttons 1-4 pushed */
 	if (buttons[0] && spaceship.x > spaceship.pad) spaceship.x -= spaceship.speed;
 	if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
 	if (buttons[2] && spaceship.x < SCREENW-spaceship.w-spaceship.pad) spaceship.x += spaceship.speed;
 	if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h-spaceship.pad) spaceship.y += spaceship.speed;
-	if (buttons[6]) play = 0;
+	if (buttons[6]) playState = 9; // Push button 7 to quit game
 	paintSprite(&spaceship);
 	
 	moveEnemy(&enemyBorg);
 	
-	if (checkCollision(&spaceship, &enemyBorg)) play = 0;
+	if (checkCollision(&spaceship, &enemyBorg)) playState = 1;
 	
-	if (buttons[7] && ! shotFired) {
+	if (buttons[7] && ! shotFired) { // Button 8 fires shot
 		shotFired = 1;
 		shot.x = spaceship.x + spaceship.w/2 - shot.w/2;
 		shot.y = spaceship.y;
@@ -190,35 +204,35 @@ static void gameLoop(int signum) {
 	
 	if (shotFired) {
 		moveShot(&shot, &shotFired);
-		if (checkCollision(&shot, &enemyBorg)) play = 0;
+		if (checkCollision(&shot, &enemyBorg)) playState = 2;
 	}
 	
 	//totalFrames++;
 	count++;
 	if (systemTime.tv_nsec > 900000000) {
-		if (!flag) {
+		if (!fpsPrintFlag) {
 			//printf("FPS: %i    Last sleeptime: %i\nLess than: %i    More than: %i\n",
 			//	count, sleepTime, lessThan, moreThan);
 			printf("FPS: %i    Last sleeptime: %i\n",
 				count, sleepTime);
 			totalFrames += count;
 			count = 0;
-			flag = 1;
+			fpsPrintFlag = 1;
 		}
-	} else if (flag) {
-		flag = 0;
+	} else if (fpsPrintFlag) {
+		fpsPrintFlag = 0;
 	}
 	clock_gettime(CLOCK_MONOTONIC, &systemTime);
 	timeNanosOld = systemTime.tv_nsec;
 }
 
-
+/* Move sprite */
 void moveEnemy(struct sprite *s) {
 	blankSprite(s);
 	
-	s->dir += rand() % 3 - 1;
+	s->dir += rand() % 3 - 1; // Change direction randomly
 	
-	switch(s->dir) {
+	switch(s->dir) { // Move sprite in the given direction
 		case 8: s->dir = 0;
 		case 0:
 			if (s->x < SCREENW - s->w - s->pad) s->x += s->speed;
@@ -253,13 +267,13 @@ void moveEnemy(struct sprite *s) {
 	paintSprite(s);
 }
 
-
+/* Initialize gamepad driver */
 void setupDriver() {
 	drfd = open("/dev/GPIO_buttons", O_RDONLY);
 	printf("Driver fd: %i\n", drfd);
 }
 
-
+/* Move laser upwards */
 void moveShot(struct sprite *s, int *fired) {
 	blankSprite(s);
 	
@@ -272,7 +286,7 @@ void moveShot(struct sprite *s, int *fired) {
 	}
 }
 
-
+/* Check for collision between sprites */
 int checkCollision(struct sprite *a, struct sprite *b) {
 	if (a->x + a->w >= b->x &&
 		a->x <= b->x + b->w &&

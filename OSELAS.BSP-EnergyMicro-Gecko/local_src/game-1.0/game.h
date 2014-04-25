@@ -23,21 +23,21 @@ enum color {
 	GY = 31/2 << 11 | 63/2 << 5 | 31/2	//gray
 };
 
-struct fb_copyarea rect;
-int fbfd;
-uint16_t *fbMap;
-int drfd;
-char buttons[8];
+struct fb_copyarea rect;	// Framebuffer update area
+int fbfd;			// Framebuffer file descriptor
+uint16_t *fbMap;	// Framebuffer map
+int drfd;			// Gamepad driver file descriptor
+char buttons[8];	// Button status array. Index 0 is button 1 and so on
 
-struct sprite {
+struct sprite { // Defines properties for objects on screen
 	int x;
 	int y;
-	int dir;
+	int dir; // Direction to move. Clockwise, 0 right to 7 up and right
 	int speed;
-	int pad; // Should be 2 * speed - 1
+	int pad; // Screen edge padding. Should be 2 * speed - 1
 	int w;
 	int h;
-	uint16_t *a;
+	uint16_t *a; // Pixel array
 };
 
 struct sprite spaceship;
@@ -53,7 +53,6 @@ void paintRect(int dx, int dy, int width, int height);
 void moveEnemy();
 void moveShot(struct sprite *s, int *fired);
 int checkCollision(struct sprite *a, struct sprite *b);
-//void gameLoop(union sigval sval);
 
 
 

@@ -6,10 +6,11 @@
 # add more flags here,
 # but don't remove the "+="
 #
-CFLAGS += -O2 -g -Wall -lrt #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
+CFLAGS += -O2 -g -Wall #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 CPPFLAGS +=
 LDFLAGS +=
 
+# The game must be compiled with -lrt as the last option. This can not be done here, but must be done manually
 
 all: game
 
