@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <errno.h>
+
 #include "game.h"
 
 /*
@@ -19,12 +21,12 @@
 static void gameLoop(int signum);
 
 /* Game states:
-	0 - Kepp playing
+	0 - Keep playing
 	1 - Player lost
 	2 - Player victory
 	9 - Player quit
 */
-int playState = 0;
+int exitState = 0;
 int totalFrames = 0; // Total frames displayed
 
 
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
 		.tv_sec = 0,
 		.tv_nsec = FRAME_TIME_NANOS,
 	};
+	
 	const struct itimerspec new_value = {
 		.it_interval = it_interval,
 		.it_value = it_interval,
@@ -90,7 +93,7 @@ int main(int argc, char *argv[])
 	int lessThan = 0;
 	
 	timeNanos = systemTime.tv_nsec;
-	while (!playState) {
+	while (!exitState) {
 		ssize_t err = read(drfd, buttons, 8);
 		if (err) printf("Failed to read button status\n");
 		blankSprite(&spaceship);
@@ -98,12 +101,12 @@ int main(int argc, char *argv[])
 		if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
 		if (buttons[2] && spaceship.x < SCREENW-spaceship.w-spaceship.pad) spaceship.x += spaceship.speed;
 		if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h-spaceship.pad) spaceship.y += spaceship.speed;
-		if (buttons[6]) playState = 9;
+		if (buttons[6]) exitState = 9;
 		paintSprite(&spaceship);
 		
 		moveEnemy(&enemyBorg);
 		
-		if (checkCollision(&spaceship, &enemyBorg)) playState = 1;
+		if (checkCollision(&spaceship, &enemyBorg)) exitState = 1;
 		
 		if (buttons[7] && ! shotFired) {
 			shotFired = 1;
@@ -113,7 +116,7 @@ int main(int argc, char *argv[])
 		
 		if (shotFired) {
 			moveShot(&shot, &shotFired);
-			if (checkCollision(&shot, &enemyBorg)) playState = 2;
+			if (checkCollision(&shot, &enemyBorg)) exitState = 2;
 		}
 		
 		//totalFrames++;
@@ -151,18 +154,21 @@ int main(int argc, char *argv[])
 	
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
-	sigsuspend(&sigmask);
-	//while (!playState) pause(); // Pause after each timer signal
+	while (!exitState) sigsuspend(&sigmask);
+	it_interval.tv_nsec = 0; // Disarm timer
+	timer_settime(timerid, 0, &new_value, NULL);
+	//while (!exitState) pause(); // Pause after each timer signal
 	
 	printf("Average framerate: %i\n", totalFrames / (time(0) - timeSeconds));
 	blankScreen();
-	switch (playState) {
-		case 1: printf("You loose! Game over!\n"); break;
-		case 2: printf("You Win! Game over!\n"); break;
-		case 9: printf("You quit! Game over!\n"); break;
+	switch (exitState) {
+		case 1: printf("\nYou loose! Game over!\n"); break;
+		case 2: printf("\nYou Win! Game over!\n"); break;
+		case 9: printf("\nYou quit! Game over!\n"); break;
 	}
 	
 	munmap(fbMap, 320*240*2);
+	//munmap(buttons, 8);
 	close(fbfd);
 	close(drfd);
 	exit(EXIT_SUCCESS);
@@ -189,12 +195,12 @@ static void gameLoop(int signum) {
 	if (buttons[1] && spaceship.y > spaceship.pad) spaceship.y -= spaceship.speed;
 	if (buttons[2] && spaceship.x < SCREENW-spaceship.w-spaceship.pad) spaceship.x += spaceship.speed;
 	if (buttons[3] && spaceship.y < SCREENH-1-spaceship.h-spaceship.pad) spaceship.y += spaceship.speed;
-	if (buttons[6]) playState = 9; // Push button 7 to quit game
+	if (buttons[6]) exitState = 9; // Push button 7 to quit game
 	paintSprite(&spaceship);
 	
 	moveEnemy(&enemyBorg);
 	
-	if (checkCollision(&spaceship, &enemyBorg)) playState = 1;
+	if (checkCollision(&spaceship, &enemyBorg)) exitState = 1;
 	
 	if (buttons[7] && ! shotFired) { // Button 8 fires shot
 		shotFired = 1;
@@ -204,7 +210,7 @@ static void gameLoop(int signum) {
 	
 	if (shotFired) {
 		moveShot(&shot, &shotFired);
-		if (checkCollision(&shot, &enemyBorg)) playState = 2;
+		if (checkCollision(&shot, &enemyBorg)) exitState = 2;
 	}
 	
 	//totalFrames++;
@@ -271,6 +277,8 @@ void moveEnemy(struct sprite *s) {
 void setupDriver() {
 	drfd = open("/dev/GPIO_buttons", O_RDONLY);
 	printf("Driver fd: %i\n", drfd);
+	//buttons = (char*)mmap(NULL, 8, PROT_READ, MAP_SHARED, drfd, 0);
+	//if (buttons == (char*)-1) printf("Failed mapping buttons: %i\n", errno);
 }
 
 /* Move laser upwards */

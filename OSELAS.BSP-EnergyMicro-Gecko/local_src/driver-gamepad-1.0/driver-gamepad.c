@@ -15,6 +15,8 @@
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 
+#include <linux/mm.h>
+
 #include "driver-gamepad.h"
 
 
@@ -32,8 +34,8 @@ struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.llseek = gamepad_llseek,
 	.read = gamepad_read,
+	.mmap = gamepad_mmap,
 	.open = gamepad_open,
-	//.mmap = gamepad_mmap,
 	.release = gamepad_release,
 };
 
@@ -173,7 +175,10 @@ loff_t gamepad_llseek(struct file *filp, loff_t off, int etellerannet) {
 
 /* Memory map buttons array to userspace program */
 int gamepad_mmap(struct file *filp, struct vm_area_struct *vmarea) {
-	
+	printk(KERN_DEBUG "Page shift: %i\n", PAGE_SHIFT);
+	if (remap_pfn_range(vmarea, vmarea->vm_start, (long)buttons >> PAGE_SHIFT,
+						vmarea->vm_end - vmarea->vm_start, vmarea->vm_page_prot))
+					return -EAGAIN;
 	
 	return 0;
 }
